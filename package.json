@@ -24,6 +24,7 @@
     "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
+    "earcut": "^2.2.4",
     "phaser": "^3.70.0"
   }
 }
