@@ -18,7 +18,7 @@ export class Game extends Scene {
       PhaserMath.Between(200, 300), 
       PhaserMath.FloatBetween(0.1, 0.3), 
       PhaserMath.FloatBetween(0.1, 0.2), 
-      5
+      PhaserMath.Between(10, 20)
     );
 
     const pointsFlat = points.flatMap(p => p);
@@ -26,7 +26,6 @@ export class Game extends Scene {
 
     const colorStep = 255 / (triangleIndices.length * 3) ;
 
-    this.add.polygon(this.cameras.main.centerX, this.cameras.main.centerY, points, 0xff0000);
     for(let i = 0; i < triangleIndices.length; i += 3) {
       const triangle = [
         points[triangleIndices[i]],
@@ -34,7 +33,11 @@ export class Game extends Scene {
         points[triangleIndices[i + 2]]
       ];
 
-      this.add.polygon(this.cameras.main.centerX, this.cameras.main.centerY, triangle, 0x000000 + i * colorStep);
+      const graphics = this.add.graphics();
+      graphics.fillStyle(0x000000 + i * colorStep, 1);
+      graphics.fillTriangle(triangle[0][0], triangle[0][1], triangle[1][0], triangle[1][1], triangle[2][0], triangle[2][1])
+      graphics.closePath();
+      graphics.setPosition(this.cameras.main.centerX, this.cameras.main.centerY);
     }
 
 
