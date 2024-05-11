@@ -35,11 +35,14 @@ export class BulletGroup extends Physics.Arcade.Group {
       if (laser) {
         laser.setScale(config.player.bulletScale);
         laser.play("fire1");
-
         laser.fire(x, y);
         this.lastFired = this.scene.time.now;
       }
     }
+  }
+
+  addObjectToCollideWith(object: Physics.Arcade.Sprite, cb: (object, bullet: Bullet) => void) {
+    this.scene.physics.add.collider(object, this, cb)
   }
 }
 

@@ -1,4 +1,4 @@
-import { FX, GameObjects, Scene, Types } from "phaser";
+import { FX, GameObjects, Physics, Scene, Types } from "phaser";
 import Player from "../entities/Player";
 import config from "../gameConfig";
 
@@ -31,9 +31,25 @@ export class Game extends Scene {
       .setDepth(0);
 
     new Asteroid(this);
-
     this.player = new Player(this);
     this.laserGroup = new BulletGroup(this);
+
+    const dummy = this.physics.add.sprite(this.cameras.main.centerX, this.cameras.main.centerY, "sun");
+    dummy.body.setImmovable()
+    dummy.setCollideWorldBounds(true)
+
+
+    this.laserGroup.addObjectToCollideWith(dummy, (obj, bullet) => {
+      bullet.destroy();
+      this.tweens.add({
+        targets: dummy,
+        tint: 0xff0000,
+        duration: 0.2,
+        yoyo: true,
+        onComplete: () => { dummy.clearTint(); }
+      });
+    })
+
 
     this.keys = this.input.keyboard.createCursorKeys();
   }
