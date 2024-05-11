@@ -46,8 +46,6 @@ export default class Asteroid {
     const polyWidth = maxX - minX;
     const polyHeight = maxY - minY;
 
-    console.log(position, polyHeight, polyWidth, this.points);
-
     const triangleContainer = this.scene.add.container(this.position.x, this.position.y);
     for (let i = 0; i < this.triangles.length; i++) {
       const triangleObject = this.createTriangle(
@@ -84,11 +82,14 @@ export default class Asteroid {
       for(let j=0; j<groups[i].length; j++) {
         triangles.push(this.triangles[groups[i][j]]);
         triangleColors.push(this.triangleColors[groups[i][j]]);
-          triPoints.push(...this.triangles[groups[i][j]]);
-        }
-        const newPoints = _.uniqWith(triPoints, _.isEqual);
-        const asteroid = new Asteroid(this.scene,{ ...this.gameObject.body.position } ,newPoints, triangles, triangleColors);
-        newAsteroids.push(asteroid);
+        triPoints.push(...this.triangles[groups[i][j]]);
+      }
+      const newPoints = _.uniqWith(triPoints, _.isEqual);
+
+      if(newPoints.length === this.points.length) continue;
+
+      const asteroid = new Asteroid(this.scene,{ ...this.gameObject } ,newPoints, triangles, triangleColors);
+      newAsteroids.push(asteroid);
     }
 
     this.gameObject.destroy();

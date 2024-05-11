@@ -92,8 +92,6 @@ export class Game extends Scene {
       const newAsteroids = oldAsteroid.destroyAsteroid();
       this.asteroids = this.asteroids.filter(asteroid => asteroid !== oldAsteroid);
 
-      console.log("destroyed asteroid", newAsteroids)
-
       for(const asteroid of newAsteroids) {
         this.asteroids.push(asteroid);
         // @ts-expect-error deez nuts
