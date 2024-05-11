@@ -35,6 +35,12 @@ export default class Preload extends Scene {
       startFrame: 0,
       endFrame: 9
     });
+    this.load.spritesheet("fire1", "assets/spritesheet/bolt.png", {
+      frameWidth: 9,
+      frameHeight: 9,
+      startFrame: 0,
+      endFrame: 5
+    });
 
     // this.load.on("fileprogress", (file) => {
     //   const previousLoad = file.previousLoad || 0;

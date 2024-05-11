@@ -8,7 +8,7 @@ export default class Player {
   constructor(scene: Scene) {
     this.sprite = scene.physics.add.sprite(
       scene.cameras.main.centerX,
-      scene.cameras.main.centerY,
+      scene.cameras.main.centerY + 300,
       "shipIdle"
     );
     this.sprite.body?.setSize(this.sprite.width / 2, this.sprite.height / 2);
