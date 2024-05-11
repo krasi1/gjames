@@ -24,7 +24,7 @@ export default class HealthSystem {
             return
         }
 
-        curr.onDamage()
+        curr.onDamage?.()
         this.trackedObjects.set(obj, { ...curr, health: curr.health - damage, });
 
     }

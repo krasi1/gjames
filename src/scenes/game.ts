@@ -41,10 +41,15 @@ export class Game extends Scene {
 
     this.asteroids = [new Asteroid(this, { x: this.cameras.main.centerX, y: this.cameras.main.centerY })];
 
+    this.laserGroup = new BulletGroup(this);
+    // add asteroids to health system
+    for(const asteroid of this.asteroids) {
+      this.hookAsteroidToGameFeatures(asteroid);
+    }
+
     this.player = new Player(this);
     this.starBoss = new Star(this);
     this.bossProjectileGroup = new ProjectileGroup(this);
-    this.laserGroup = new BulletGroup(this);
     this.healthSystem.addObject(this.player.sprite, 100, () => this.player.destroy())
 
     this.starBoss.sprite.body.setCircle(this.starBoss.sprite.width / 2);
@@ -82,40 +87,40 @@ export class Game extends Scene {
       });
     })
 
-    const destroyAsteroid = (obj: Asteroid["gameObject"], bullet: Bullet) => {
-      bullet.destroy();
-      const oldAsteroid = this.asteroids.find(asteroid => asteroid.gameObject === obj);
-
-      if(!oldAsteroid) return;
-      const oldPoint = { x: oldAsteroid.gameObject.x, y: oldAsteroid.gameObject.y };
-
-      const newAsteroids = oldAsteroid.destroyAsteroid();
-      this.asteroids = this.asteroids.filter(asteroid => asteroid !== oldAsteroid);
-
-
-      for(const asteroid of newAsteroids) {
-        const p = centroid(asteroid.points);
-        const oldVector = new Phaser.Math.Vector2(oldPoint.x, oldPoint.y);
-        const newVector = new Phaser.Math.Vector2(oldPoint.x + p[0], oldPoint.y + p[1]);
-
-        // add force to get away from the center of the destroyed asteroid
-        const force = newVector.subtract(oldVector).normalize().scale(500);
-        // @ts-expect-error deez nuts
-        asteroid.gameObject.body.setVelocity(force.x, force.y);
-
-        this.asteroids.push(asteroid);
-        // @ts-expect-error deez nuts
-        this.laserGroup.addObjectToCollideWith(asteroid.gameObject, destroyAsteroid);
-      }
-    }
-    // @ts-expect-error deez nuts
-    this.laserGroup.addObjectToCollideWith(this.asteroids[0].gameObject, destroyAsteroid);
+   
 
     this.keys = this.input.keyboard.createCursorKeys();
   }
 
+  destroyAsteroid = (oldAsteroid: Asteroid) => {
+    if(!oldAsteroid) return;
+    const oldPoint = { x: oldAsteroid.gameObject.x, y: oldAsteroid.gameObject.y };
 
+    const newAsteroids = oldAsteroid.destroyAsteroid();
+    this.asteroids = this.asteroids.filter(asteroid => asteroid !== oldAsteroid);
 
+    for(const asteroid of newAsteroids) {
+      const p = centroid(asteroid.points);
+      const oldVector = new Phaser.Math.Vector2(oldPoint.x, oldPoint.y);
+      const newVector = new Phaser.Math.Vector2(oldPoint.x + p[0], oldPoint.y + p[1]);
+
+      // add force to get away from the center of the destroyed asteroid
+      const force = newVector.subtract(oldVector).normalize().scale(500);
+      // @ts-expect-error deez nuts
+      asteroid.gameObject.body.setVelocity(force.x, force.y);
+
+      this.asteroids.push(asteroid);
+      this.hookAsteroidToGameFeatures(asteroid);
+    }
+  }
+
+  private hookAsteroidToGameFeatures(asteroid: Asteroid) {
+    this.healthSystem.addObject(asteroid.gameObject, 100, () => this.destroyAsteroid(asteroid));
+    // @ts-expect-error deez nuts
+    this.laserGroup.addObjectToCollideWith(asteroid.gameObject, () => {
+      this.healthSystem.takeDamage(asteroid.gameObject, 10);
+    });
+  }
 
   update() {
     this.background.tilePositionY -= config.background.scrollVelocity;
