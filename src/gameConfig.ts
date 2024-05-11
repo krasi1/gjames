@@ -7,7 +7,7 @@ const config = {
     velocity: 200,
     fireRate: 10,
     bulletVelocity: 700,
-    bulletScale:3
+    bulletScale:5
   },
   playerAnims: {
     ship: {
