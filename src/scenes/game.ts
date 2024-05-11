@@ -120,6 +120,13 @@ export class Game extends Scene {
     this.laserGroup.addObjectToCollideWith(asteroid.gameObject, (_, bullet) => {
       bullet.destroy();
       this.healthSystem.takeDamage(asteroid.gameObject, 10);
+      // tint the asteroid red
+      this.tweens.add({
+        targets: asteroid.gameObject,
+        alpha: 0.3,
+        duration: 0.2,
+        yoyo: true,
+      });
     });
   }
 
