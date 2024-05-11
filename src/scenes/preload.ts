@@ -44,6 +44,12 @@ export default class Preload extends Scene {
       startFrame: 0,
       endFrame: 5
     });
+    this.load.spritesheet("fire2", "assets/spritesheet/laser.png", {
+      frameWidth: 18,
+      frameHeight: 38,
+      startFrame: 0,
+      endFrame: 3
+    });
     this.load.image("star", "assets/image/star.png");
     this.load.image("projectile", "assets/image/projectile.png");
     this.load.image("mineral", "assets/image/gem.png");

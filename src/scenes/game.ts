@@ -63,7 +63,7 @@ export class Game extends Scene {
 
     this.laserGroup = new BulletGroup(this);
     // add asteroids to health system
-    for(const asteroid of this.asteroids) {
+    for (const asteroid of this.asteroids) {
       this.hookAsteroidToGameFeatures(asteroid);
     }
 
@@ -100,7 +100,12 @@ export class Game extends Scene {
     //})
 
     this.laserGroup.addObjectToCollideWith(this.starBoss.sprite, (obj, bullet) => {
-      bullet.destroy();
+      if (!this.laserGroup.laserEnabled) bullet.destroy();
+      else if (this.time.now - this.laserGroup.lastFired < this.laserGroup.fireRate) {
+        this.laserGroup.lastFired = this.time.now;
+        return
+      }
+
       this.tweens.add({
         targets: obj,
         tint: 0xff0000,
@@ -110,10 +115,12 @@ export class Game extends Scene {
     })
 
     this.keys = this.input.keyboard.createCursorKeys();
+
+    this.input.keyboard.on("keydown-W", () => this.laserGroup.upgradeWeapon())
   }
 
   destroyAsteroid = (oldAsteroid: Asteroid) => {
-    if(!oldAsteroid) return;
+    if (!oldAsteroid) return;
     const oldPoint = { x: oldAsteroid.gameObject.x, y: oldAsteroid.gameObject.y };
 
     const mineral = new Mineral(this, oldPoint.x, oldPoint.y, Phaser.Math.Between(0,3));
@@ -126,7 +133,7 @@ export class Game extends Scene {
     const newAsteroids = oldAsteroid.destroyAsteroid();
     this.asteroids = this.asteroids.filter(asteroid => asteroid !== oldAsteroid);
 
-    for(const asteroid of newAsteroids) {
+    for (const asteroid of newAsteroids) {
       const p = centroid(asteroid.points);
       const oldVector = new Phaser.Math.Vector2(oldPoint.x, oldPoint.y);
       const newVector = new Phaser.Math.Vector2(oldPoint.x + p[0], oldPoint.y + p[1]);
@@ -145,7 +152,8 @@ export class Game extends Scene {
     this.healthSystem.addObject(asteroid.gameObject, 100, () => this.destroyAsteroid(asteroid));
     // @ts-expect-error deez nuts
     this.laserGroup.addObjectToCollideWith(asteroid.gameObject, (_, bullet) => {
-      bullet.destroy();
+      if (!this.laserGroup.laserEnabled) bullet.destroy();
+      if (this.laserGroup.laserEnabled && this.time.now - this.laserGroup.lastFired < this.laserGroup.fireRate) return
       this.healthSystem.takeDamage(asteroid.gameObject, 10);
       // tint the asteroid red
       this.tweens.add({
@@ -164,10 +172,12 @@ export class Game extends Scene {
     this.player.update(this.keys);
     this.bossProjectileGroup.fireProjectile(this.cameras.main.centerX, 100, Pattern.Ring);
     if (this.keys.space.isDown) {
-      this.laserGroup.fireLaser(
+      this.laserGroup.fireBullets(
         this.player.sprite.x,
-        this.player.sprite.y - 20
+        this.player.sprite.y - 20,
+        this.player.sprite
       );
-    }
+    } else this.laserGroup.stopFiringLaser()
+
   }
 }
