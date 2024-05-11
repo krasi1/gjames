@@ -23,6 +23,9 @@ export class Game extends Scene {
   healthSystem: HealthSystem
   asteroids: Asteroid[];
   minerals: Mineral[];
+  invisibleSideWalls: GameObjects.Rectangle[];
+  invisibleVerticalWalls: GameObjects.Rectangle[];
+  topTriggerWall: GameObjects.Rectangle;
 
   constructor() {
     super({
@@ -53,7 +56,10 @@ export class Game extends Scene {
     this.backgroundTint.tint = 0xff0000;    // full red tint for the background
     this.backgroundTint.alpha=0;            // transparent at the start
 
-    this.asteroids = [new Asteroid(this, { x: this.cameras.main.centerX, y: this.cameras.main.centerY })];
+    // add single asteroid 200 pixels offscren from the top
+    this.asteroids = [
+      new Asteroid(this, { x: this.cameras.main.centerX, y: -200 })
+    ];
     this.minerals = [
       // new Mineral(this, 200, 600, PowerUpType.FireRateUp)
       // new Mineral(this, 400, 600, PowerUpType.DamageUp),
@@ -62,6 +68,7 @@ export class Game extends Scene {
     //this.minerals[0].sprite.body.setCircle(this.minerals[0].sprite.width/2);
 
     this.laserGroup = new BulletGroup(this);
+    this.createInvisibleWalls();
     // add asteroids to health system
     for (const asteroid of this.asteroids) {
       this.hookAsteroidToGameFeatures(asteroid);
@@ -148,6 +155,46 @@ export class Game extends Scene {
     }
   }
 
+  private createInvisibleWalls() {
+    const offsetOffscreen = 400;
+
+    const wallColor = 0xff0000;
+    const wallAlpha = 0;
+
+    this.invisibleSideWalls = [
+      this.add.rectangle(0, this.cameras.main.centerY, 1, this.game.canvas.height + offsetOffscreen, wallColor, wallAlpha).setOrigin(0, 0.5),
+      this.add.rectangle(this.game.canvas.width, this.cameras.main.centerY, 1, this.game.canvas.height + offsetOffscreen, wallColor, wallAlpha).setOrigin(1, 0.5)
+    ];
+    this.invisibleVerticalWalls = [
+      this.add.rectangle(this.cameras.main.centerX, -offsetOffscreen, this.game.canvas.width, 1, wallColor, wallAlpha).setOrigin(0.5, 0),
+      this.add.rectangle(this.cameras.main.centerX, this.game.canvas.height + offsetOffscreen, this.game.canvas.width, 1, wallColor, wallAlpha).setOrigin(0.5, 1),
+    ];
+
+    this.topTriggerWall = this.add.rectangle(this.cameras.main.centerX, 0, this.game.canvas.width, 1, wallColor, wallAlpha).setOrigin(0.5, 0);
+
+    this.invisibleSideWalls.forEach(wall => this.physics.add.existing(wall));
+    this.invisibleVerticalWalls.forEach(wall => this.physics.add.existing(wall));
+    this.physics.add.existing(this.topTriggerWall);
+
+    // make walls immovable
+    this.invisibleSideWalls.forEach(wall => {
+      // @ts-expect-error deez nuts
+      wall.body.immovable = true;
+      // @ts-expect-error deez nuts
+      wall.body.pushable = false;
+    });
+    this.invisibleVerticalWalls.forEach(wall => {
+      // @ts-expect-error deez nuts
+      wall.body.immovable = true;
+      // @ts-expect-error deez nuts
+      wall.body.pushable = false;
+    });
+    // @ts-expect-error deez nuts
+    this.topTriggerWall.body.immovable = true;
+    // @ts-expect-error deez nuts
+    this.topTriggerWall.body.pushable = false;
+  }
+
   private hookAsteroidToGameFeatures(asteroid: Asteroid) {
     this.healthSystem.addObject(asteroid.gameObject, 100, () => this.destroyAsteroid(asteroid));
     // @ts-expect-error deez nuts
@@ -163,11 +210,41 @@ export class Game extends Scene {
         yoyo: true,
       });
     });
+
+    const wallColliders = this.invisibleSideWalls;
+    this.physics.add.overlap(asteroid.gameObject, wallColliders, (asteroid) => {
+      console.log("collided with wall");
+      // @ts-expect-error deez nuts
+      asteroid.body.setVelocityX(-1 * asteroid.body.velocity.x);
+    });
+
+    const destroyAsteroidCb = (asteroid: Asteroid["gameObject"]) => {
+      console.log("destroyed asteroid after leaving the screen");
+      asteroid.destroy();
+      this.asteroids = this.asteroids.filter(a => a.gameObject !== asteroid);
+      this.healthSystem.trackedObjects.delete(asteroid);
+    }
+
+    const [topWall, bottomWall] = this.invisibleVerticalWalls;
+
+    // add collision with top wall after touching the top trigger wall once
+    // and remove collision with the trigger wall
+    const tempCollider = this.physics.add.overlap(asteroid.gameObject, this.topTriggerWall, () => {
+      console.log("collided with top trigger wall");
+      // @ts-expect-error deez nuts
+      this.physics.add.overlap(asteroid.gameObject, topWall, destroyAsteroidCb);
+      this.physics.world.removeCollider(tempCollider);
+    });
+
+    // add collision with bottom wall + destroy asteroid
+    // @ts-expect-error deez nuts
+    this.physics.add.overlap(asteroid.gameObject, bottomWall, destroyAsteroidCb);
   }
 
   update() {
     this.background.tilePositionY -= config.background.scrollVelocity;
     this.backgroundTint.tilePositionY -= config.background.scrollVelocity;
+    // move collision walls with the background
     this.backgroundTint.alpha += 0.001;   // tinted background gets revealed gradually
     this.player.update(this.keys);
     this.bossProjectileGroup.fireProjectile(this.cameras.main.centerX, 100, Pattern.Ring);
@@ -178,6 +255,5 @@ export class Game extends Scene {
         this.player.sprite
       );
     } else this.laserGroup.stopFiringLaser()
-
   }
 }

@@ -68,8 +68,7 @@ export default class Asteroid {
     this.scene.physics.world.enable(triangleContainer);
 
     const containerBody = triangleContainer.body as Phaser.Physics.Arcade.Body;
-    containerBody.setVelocity(100, 100);
-    containerBody.setCollideWorldBounds(true, 1, 1, true);
+    containerBody.setVelocity(PhaserMath.FloatBetween(-100, 100), 300);
 
     this.gameObject = triangleContainer;
   }
