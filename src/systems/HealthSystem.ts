@@ -20,9 +20,11 @@ export default class HealthSystem {
 
         if (curr.health - damage <= 0) {
             curr.onDestroy()
+            this.trackedObjects.delete(obj)
             return
         }
 
         this.trackedObjects.set(obj, { ...curr, health: curr.health - damage, });
+
     }
 }
