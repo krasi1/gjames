@@ -56,10 +56,23 @@ export class Game extends Scene {
     this.backgroundTint.tint = 0xff0000;    // full red tint for the background
     this.backgroundTint.alpha=0;            // transparent at the start
 
-    // add single asteroid 200 pixels offscren from the top
-    this.asteroids = [
-      new Asteroid(this, { x: this.cameras.main.centerX, y: -200 })
+    const spawnPoints = [
+      this.cameras.main.centerX - 500,
+      this.cameras.main.centerX,
+      this.cameras.main.centerX + 500
     ];
+    this.asteroids = [];
+    this.time.addEvent({
+      delay: 5000,
+      loop: true,
+      callback: () => {
+        for (const x of spawnPoints) {
+          const asteroid = new Asteroid(this, { x, y: -200 });
+          this.asteroids.push(asteroid);
+          this.hookAsteroidToGameFeatures(asteroid);
+        }
+      }
+    });
     this.minerals = [
       // new Mineral(this, 200, 600, PowerUpType.FireRateUp)
       // new Mineral(this, 400, 600, PowerUpType.DamageUp),
