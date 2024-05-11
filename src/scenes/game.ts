@@ -49,10 +49,6 @@ export class Game extends Scene {
     .setDepth(0);
     this.backgroundTint.tint = 0xff0000;    // full red tint for the background
     this.backgroundTint.alpha=0;            // transparent at the start
-    //new Asteroid(this);
-    //this.starBoss = new Star(this);
-    //this.bossProjectileGroup = new ProjectileGroup(this);
-    //new Asteroid(this);
 
     this.asteroids = [new Asteroid(this, { x: this.cameras.main.centerX, y: this.cameras.main.centerY })];
 
@@ -73,12 +69,9 @@ export class Game extends Scene {
         targets: this.player.sprite,
         tint: 0xff0000,
         duration: 0.5,
-        yoyo: true,
+        yoyo: true
       });
     })
-
-
-
 
     this.physics.add.collider(this.player.sprite, this.bossProjectileGroup, (player, projectile: Projectile) => {
       if (!projectile.collided) {
@@ -88,14 +81,13 @@ export class Game extends Scene {
       }
     })
 
-
     this.laserGroup.addObjectToCollideWith(this.starBoss.sprite, (obj, bullet) => {
       bullet.destroy();
       this.tweens.add({
         targets: obj,
         tint: 0xff0000,
         duration: 0.2,
-        yoyo: true,
+        yoyo: true
       });
     })
 
@@ -121,15 +113,12 @@ export class Game extends Scene {
   }
 
 
-
-
   update() {
     this.background.tilePositionY -= config.background.scrollVelocity;
     this.backgroundTint.tilePositionY -= config.background.scrollVelocity;
     this.backgroundTint.alpha += 0.001;   // tinted background gets revealed gradually
     this.player.update(this.keys);
     this.bossProjectileGroup.fireProjectile(this.cameras.main.centerX, 100, Pattern.Ring);
-    //this.bossProjectileGroup.fireProjectile(this.cameras.main.centerX, 100, Pattern.TwoSplit);
     if (this.keys.space.isDown) {
       this.laserGroup.fireLaser(
         this.player.sprite.x,
