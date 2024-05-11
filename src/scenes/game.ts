@@ -44,9 +44,6 @@ export class Game extends Scene {
     this.laserGroup = new BulletGroup(this);
     this.starBoss = new Star(this);
     this.bossProjectileGroup = new ProjectileGroup(this);
-    new Asteroid(this);
-    this.player = new Player(this);
-    this.laserGroup = new BulletGroup(this);
     this.healthSystem.addObject(this.player.sprite, 100, ()=>this.player.destroy())
 
     const dummy = this.physics.add.sprite(this.cameras.main.centerX, this.cameras.main.centerY, "sun");
