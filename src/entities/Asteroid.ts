@@ -88,7 +88,13 @@ export default class Asteroid {
 
       if(newPoints.length === this.points.length) continue;
 
-      const asteroid = new Asteroid(this.scene,{ ...this.gameObject } ,newPoints, triangles, triangleColors);
+      const asteroid = new Asteroid(
+        this.scene,
+        { x: this.gameObject.x, y: this.gameObject.y },
+        newPoints,
+        triangles,
+        triangleColors
+      );
       newAsteroids.push(asteroid);
     }
 

@@ -3,6 +3,7 @@ import Player from "../entities/Player";
 import Star from "../entities/Star";
 import config from "../gameConfig";
 import HealthSystem from "../systems/HealthSystem"
+import centroid from "../math/centroid";
 
 import Asteroid from "../entities/Asteroid";
 
@@ -86,11 +87,22 @@ export class Game extends Scene {
       const oldAsteroid = this.asteroids.find(asteroid => asteroid.gameObject === obj);
 
       if(!oldAsteroid) return;
+      const oldPoint = { x: oldAsteroid.gameObject.x, y: oldAsteroid.gameObject.y };
 
       const newAsteroids = oldAsteroid.destroyAsteroid();
       this.asteroids = this.asteroids.filter(asteroid => asteroid !== oldAsteroid);
 
+
       for(const asteroid of newAsteroids) {
+        const p = centroid(asteroid.points);
+        const oldVector = new Phaser.Math.Vector2(oldPoint.x, oldPoint.y);
+        const newVector = new Phaser.Math.Vector2(oldPoint.x + p[0], oldPoint.y + p[1]);
+
+        // add force to get away from the center of the destroyed asteroid
+        const force = newVector.subtract(oldVector).normalize().scale(500);
+        // @ts-expect-error deez nuts
+        asteroid.gameObject.body.setVelocity(force.x, force.y);
+
         this.asteroids.push(asteroid);
         // @ts-expect-error deez nuts
         this.laserGroup.addObjectToCollideWith(asteroid.gameObject, destroyAsteroid);
