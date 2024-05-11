@@ -42,7 +42,7 @@ export class BulletGroup extends Physics.Arcade.Group {
   }
 
   addObjectToCollideWith(object: Physics.Arcade.Sprite, cb: (object, bullet: Bullet) => void) {
-    this.scene.physics.add.collider(object, this, cb)
+    this.scene.physics.add.overlap(object, this, cb);
   }
 }
 

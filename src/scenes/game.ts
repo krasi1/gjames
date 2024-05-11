@@ -3,6 +3,7 @@ import Player from "../entities/Player";
 import Star from "../entities/Star";
 import config from "../gameConfig";
 import HealthSystem from "../systems/HealthSystem"
+import centroid from "../math/centroid";
 
 import Asteroid from "../entities/Asteroid";
 import { Mineral, PowerUpType } from "../entities/Mineral";
@@ -60,10 +61,15 @@ export class Game extends Scene {
     ];
     this.minerals[0].sprite.body.setCircle(this.minerals[0].sprite.width/2);
 
+    this.laserGroup = new BulletGroup(this);
+    // add asteroids to health system
+    for(const asteroid of this.asteroids) {
+      this.hookAsteroidToGameFeatures(asteroid);
+    }
+
     this.player = new Player(this);
     this.starBoss = new Star(this);
     this.bossProjectileGroup = new ProjectileGroup(this);
-    this.laserGroup = new BulletGroup(this);
     this.healthSystem.addObject(this.player.sprite, 100, () => this.player.destroy())
 
     this.starBoss.sprite.body.setCircle(this.starBoss.sprite.width / 2);
@@ -71,8 +77,8 @@ export class Game extends Scene {
     this.starBoss.sprite.body.pushable = false
 
     this.starBoss.sprite.setCollideWorldBounds(true)
-    this.healthSystem.addObject(this.starBoss.sprite, config.boss.health, () => this.starBoss.sprite.destroy())
-    this.healthSystem.addObject(this.player.sprite, 300, () => this.player.destroy(), () => {
+    this.healthSystem.addObject(this.starBoss.sprite, 100, () => this.starBoss.sprite.destroy())
+    this.healthSystem.addObject(this.player.sprite, 3000, () => this.player.destroy(), () => {
       this.tweens.add({
         targets: this.player.sprite,
         tint: 0xff0000,
@@ -103,24 +109,47 @@ export class Game extends Scene {
       });
     })
 
-    const destroyAsteroid = (obj: Asteroid["gameObject"], bullet: Bullet) => {
-      bullet.destroy();
-      const oldAsteroid = this.asteroids.find(asteroid => asteroid.gameObject === obj);
-
-      if(!oldAsteroid) return;
-      const newAsteroids = oldAsteroid.destroyAsteroid();
-      this.asteroids = this.asteroids.filter(asteroid => asteroid !== oldAsteroid);
-
-      for(const asteroid of newAsteroids) {
-        this.asteroids.push(asteroid);
-        // @ts-expect-error deez nuts
-        this.laserGroup.addObjectToCollideWith(asteroid.gameObject, destroyAsteroid);
-      }
-    }
-    // @ts-expect-error deez nuts
-    this.laserGroup.addObjectToCollideWith(this.asteroids[0].gameObject, destroyAsteroid);
+   
 
     this.keys = this.input.keyboard.createCursorKeys();
+  }
+
+  destroyAsteroid = (oldAsteroid: Asteroid) => {
+    if(!oldAsteroid) return;
+    const oldPoint = { x: oldAsteroid.gameObject.x, y: oldAsteroid.gameObject.y };
+
+    const newAsteroids = oldAsteroid.destroyAsteroid();
+    this.asteroids = this.asteroids.filter(asteroid => asteroid !== oldAsteroid);
+
+    for(const asteroid of newAsteroids) {
+      const p = centroid(asteroid.points);
+      const oldVector = new Phaser.Math.Vector2(oldPoint.x, oldPoint.y);
+      const newVector = new Phaser.Math.Vector2(oldPoint.x + p[0], oldPoint.y + p[1]);
+
+      // add force to get away from the center of the destroyed asteroid
+      const force = newVector.subtract(oldVector).normalize().scale(500);
+      // @ts-expect-error deez nuts
+      asteroid.gameObject.body.setVelocity(force.x, force.y);
+
+      this.asteroids.push(asteroid);
+      this.hookAsteroidToGameFeatures(asteroid);
+    }
+  }
+
+  private hookAsteroidToGameFeatures(asteroid: Asteroid) {
+    this.healthSystem.addObject(asteroid.gameObject, 100, () => this.destroyAsteroid(asteroid));
+    // @ts-expect-error deez nuts
+    this.laserGroup.addObjectToCollideWith(asteroid.gameObject, (_, bullet) => {
+      bullet.destroy();
+      this.healthSystem.takeDamage(asteroid.gameObject, 10);
+      // tint the asteroid red
+      this.tweens.add({
+        targets: asteroid.gameObject,
+        alpha: 0.3,
+        duration: 0.2,
+        yoyo: true,
+      });
+    });
   }
 
   update() {

@@ -4,7 +4,7 @@ const config = {
   },
 
   player: {
-    velocity: 200,
+    velocity: 400,
     fireRate: 10,
     bulletVelocity: 700,
     bulletScale:5
