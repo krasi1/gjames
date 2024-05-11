@@ -55,11 +55,11 @@ export class Game extends Scene {
 
     this.asteroids = [new Asteroid(this, { x: this.cameras.main.centerX, y: this.cameras.main.centerY })];
     this.minerals = [
-      new Mineral(this, 200, 600, PowerUpType.FireRateUp)
+      // new Mineral(this, 200, 600, PowerUpType.FireRateUp)
       // new Mineral(this, 400, 600, PowerUpType.DamageUp),
       // new Mineral(this, 600, 600, PowerUpType.SplitShot)
     ];
-    this.minerals[0].sprite.body.setCircle(this.minerals[0].sprite.width/2);
+    //this.minerals[0].sprite.body.setCircle(this.minerals[0].sprite.width/2);
 
     this.laserGroup = new BulletGroup(this);
     // add asteroids to health system
@@ -95,9 +95,9 @@ export class Game extends Scene {
       }
     })
 
-    this.physics.add.collider(this.player.sprite, this.minerals[0].sprite, () => {
-      this.minerals[0].destroyMineral(this.laserGroup);
-    })
+    //this.physics.add.collider(this.player.sprite, this.minerals[0].sprite, () => {
+    //  this.minerals[0].destroyMineral(this.laserGroup);
+    //})
 
     this.laserGroup.addObjectToCollideWith(this.starBoss.sprite, (obj, bullet) => {
       bullet.destroy();
@@ -109,14 +109,19 @@ export class Game extends Scene {
       });
     })
 
-   
-
     this.keys = this.input.keyboard.createCursorKeys();
   }
 
   destroyAsteroid = (oldAsteroid: Asteroid) => {
     if(!oldAsteroid) return;
     const oldPoint = { x: oldAsteroid.gameObject.x, y: oldAsteroid.gameObject.y };
+
+    const mineral = new Mineral(this, oldPoint.x, oldPoint.y, Phaser.Math.Between(0,3));
+    mineral?.sprite.body.setCircle(mineral?.sprite.width/2);
+    this.physics.add.collider(this.player.sprite, mineral?.sprite, () => {
+      mineral?.destroyMineral(this.laserGroup);
+    })
+    this.minerals.push(mineral);
 
     const newAsteroids = oldAsteroid.destroyAsteroid();
     this.asteroids = this.asteroids.filter(asteroid => asteroid !== oldAsteroid);
