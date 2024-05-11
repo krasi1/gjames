@@ -30,8 +30,14 @@ export default class Asteroid {
     );
 
     this.triangles = _triangles ?? this.splitToTriangles();
-    const colorStep = 255 / (this.triangles.length);
-    this.triangleColors = _triangleColors ?? Array.from({ length: this.triangles.length }, (_, i) => 0x000000 + i * colorStep);
+    const colorStep = 100 / this.triangles.length;
+    this.triangleColors = _triangleColors ?? this.triangles.map((_, i) => {
+      const currentStep = PhaserMath.Clamp(60 + (colorStep * i), 0, 128);
+
+      const blueStep = PhaserMath.Clamp(currentStep + 30, 0, 255);
+
+      return Phaser.Display.Color.GetColor(currentStep, currentStep, blueStep);
+    });
 
     let minX = 0;
     let minY = 0;
