@@ -5,9 +5,37 @@ const config = {
 
   player: {
     velocity: 400,
-    fireRate: 10,
-    bulletVelocity: 700,
-    bulletScale:5
+
+    laserFireRate: 2,
+
+    weapons: {
+      1: {
+        bulletVelocity: 600,
+        bulletScale: 5,
+        fireRate: 10,
+        tint: 0xffffff
+      },
+      2: {
+        bulletVelocity: 800,
+        bulletScale: 6,
+        fireRate: 11,
+        tint: 0x00ff00
+
+      },
+      3: {
+        bulletVelocity: 1000,
+        bulletScale: 7,
+        fireRate: 12,
+        tint: 0x00ffff
+      },
+      4: {
+        bulletVelocity: 1200,
+        bulletScale: 8,
+        fireRate: 14,
+        tint: 0xff0000
+
+      },
+    }
   },
   playerAnims: {
     ship: {
@@ -28,17 +56,28 @@ const config = {
       },
       frameConfig: {
         key: "loop",
-        frameRate: 15 ,
+        frameRate: 15,
         repeat: -1
       }
     },
-    fire1:{
+    fire1: {
       frames: {
         start: 0,
         end: 4
       },
       frameConfig: {
         key: "fire1",
+        frameRate: 20,
+        repeat: -1
+      }
+    },
+    fire2: {
+      frames: {
+        start: 0,
+        end: 3
+      },
+      frameConfig: {
+        key: "fire2",
         frameRate: 20,
         repeat: -1
       }

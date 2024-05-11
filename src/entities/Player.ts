@@ -14,6 +14,7 @@ export default class Player {
     );
     this.sprite.body?.setSize(this.sprite.width / 2, this.sprite.height / 2);
     this.sprite.setCollideWorldBounds(true);
+    this.sprite.setDepth(2)
 
     const engineLoop = {
       frames: scene.anims.generateFrameNumbers("engine", {
