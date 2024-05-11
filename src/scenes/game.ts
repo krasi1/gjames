@@ -7,7 +7,7 @@ import HealthSystem from "../systems/HealthSystem"
 import Asteroid from "../entities/Asteroid";
 
 import { BulletGroup } from "../systems/BulletSystem";
-import { ProjectileGroup, Pattern } from "../systems/ProjectileSystem";
+import { ProjectileGroup, Pattern, Projectile } from "../systems/ProjectileSystem";
 
 export class Game extends Scene {
   background: GameObjects.TileSprite;
@@ -41,35 +41,60 @@ export class Game extends Scene {
     this.asteroid = new Asteroid(this);
 
     this.player = new Player(this);
-    this.laserGroup = new BulletGroup(this);
     this.starBoss = new Star(this);
     this.bossProjectileGroup = new ProjectileGroup(this);
-    this.healthSystem.addObject(this.player.sprite, 100, ()=>this.player.destroy())
+    this.laserGroup = new BulletGroup(this);
+    this.healthSystem.addObject(this.player.sprite, 100, () => this.player.destroy())
 
-    const dummy = this.physics.add.sprite(this.cameras.main.centerX, this.cameras.main.centerY, "sun");
-    dummy.body.setCircle(dummy.width / 2);
-    dummy.body.setImmovable()
-    dummy.setCollideWorldBounds(true)
-    this.healthSystem.addObject(dummy, 100, () => dummy.destroy())
+    this.starBoss.sprite.body.setCircle(this.starBoss.sprite.width / 2);
+    this.starBoss.sprite.body.immovable = true
+    this.starBoss.sprite.body.pushable = false
 
-    this.laserGroup.addObjectToCollideWith(dummy, (obj, bullet) => {
+    this.starBoss.sprite.setCollideWorldBounds(true)
+    this.healthSystem.addObject(this.starBoss.sprite, 100, () => this.starBoss.sprite.destroy())
+    this.healthSystem.addObject(this.player.sprite, 300, () => this.player.destroy(), () => {
+      this.tweens.add({
+        targets: this.player.sprite,
+        tint: 0xff0000,
+        duration: 0.5,
+        yoyo: true,
+      });
+    })
+
+
+
+
+    this.physics.add.collider(this.player.sprite, this.bossProjectileGroup, (player, projectile: Projectile) => {
+      if (!projectile.collided) {
+        projectile.destroy()
+        this.healthSystem.takeDamage(this.player.sprite, 100)
+        projectile.collided = true
+      }
+    })
+
+
+    this.laserGroup.addObjectToCollideWith(this.starBoss.sprite, (obj, bullet) => {
       bullet.destroy();
       this.tweens.add({
-        targets: dummy,
+        targets: obj,
         tint: 0xff0000,
         duration: 0.2,
         yoyo: true,
-        onComplete: () => { dummy.clearTint(); }
       });
     })
+
+
 
     this.keys = this.input.keyboard.createCursorKeys();
   }
 
+
+
+
   update() {
     this.background.tilePositionY -= config.background.scrollVelocity;
     this.player.update(this.keys);
-    this.bossProjectileGroup.fireProjectile(this.cameras.main.centerX, 100, Pattern.TwoSplit);
+    this.bossProjectileGroup.fireProjectile(this.cameras.main.centerX, 100, Pattern.Ring);
     if (this.keys.space.isDown) {
       this.laserGroup.fireLaser(
         this.player.sprite.x,

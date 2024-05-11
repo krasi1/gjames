@@ -111,7 +111,8 @@ patternTwoSplit = (x: number, y: number) => {
   }
 }
 
-class Projectile extends Phaser.Physics.Arcade.Sprite {
+export class Projectile extends Phaser.Physics.Arcade.Sprite {
+  collided = false
   constructor(scene, x, y) {
     super(scene, x, y, "projectile");
   }
@@ -127,9 +128,12 @@ class Projectile extends Phaser.Physics.Arcade.Sprite {
   }
   fire(x, y, velocityX, velocityY) {
     this.body?.reset(x, y);
+    this.collided = false
     this.setActive(true);
     this.setVisible(true);
     this.setVelocity(velocityX, velocityY);
   }
+
+
 
 }

@@ -4,6 +4,7 @@ import config from "../gameConfig";
 export default class Player {
   sprite: Physics.Arcade.Sprite;
   engineAnim: GameObjects.Sprite;
+  destroyed = false
 
   constructor(scene: Scene) {
     this.sprite = scene.physics.add.sprite(
@@ -32,6 +33,7 @@ export default class Player {
   }
 
   update(keys: Types.Input.Keyboard.CursorKeys) {
+    if (this.destroyed) return
     const { left, right, up, down } = keys;
 
     this.engineAnim.setPosition(this.sprite.x, this.sprite.y + 5);
@@ -50,6 +52,7 @@ export default class Player {
   }
 
   destroy() {
+    this.destroyed = true
     this.sprite.destroy()
     this.engineAnim.destroy()
   }
