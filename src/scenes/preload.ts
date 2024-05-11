@@ -25,6 +25,7 @@ export default class Preload extends Scene {
     this.load.image("ship", "assets/image/ship.png");
     this.load.image("sun", "assets/image/sun.png");
 
+
     this.load.spritesheet("engine", "assets/spritesheet/shipEngine.png", {
       frameWidth: 128,
       frameHeight: 128,
