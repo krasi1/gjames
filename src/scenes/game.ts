@@ -1,4 +1,4 @@
-import { FX, GameObjects, Physics, Scene, Types } from "phaser";
+import { FX, GameObjects, Scene, Types } from "phaser";
 import Player from "../entities/Player";
 import Star from "../entities/Star";
 import config from "../gameConfig";
@@ -6,7 +6,7 @@ import HealthSystem from "../systems/HealthSystem"
 
 import Asteroid from "../entities/Asteroid";
 
-import { BulletGroup } from "../systems/BulletSystem";
+import { BulletGroup, Bullet } from "../systems/BulletSystem";
 import { ProjectileGroup, Pattern, Projectile } from "../systems/ProjectileSystem";
 
 export class Game extends Scene {
@@ -18,7 +18,7 @@ export class Game extends Scene {
   starBoss: Star;
   bossProjectileGroup: ProjectileGroup;
   healthSystem: HealthSystem
-  asteroid: Asteroid;
+  asteroids: Asteroid[];
 
   constructor() {
     super({
@@ -38,7 +38,7 @@ export class Game extends Scene {
       )
       .setDepth(0);
 
-    this.asteroid = new Asteroid(this);
+    this.asteroids = [new Asteroid(this, { x: this.cameras.main.centerX, y: this.cameras.main.centerY })];
 
     this.player = new Player(this);
     this.starBoss = new Star(this);
@@ -83,7 +83,25 @@ export class Game extends Scene {
       });
     })
 
+    const destroyAsteroid = (obj: Asteroid["gameObject"], bullet: Bullet) => {
+      bullet.destroy();
+      const oldAsteroid = this.asteroids.find(asteroid => asteroid.gameObject === obj);
 
+      if(!oldAsteroid) return;
+
+      const newAsteroids = oldAsteroid.destroyAsteroid();
+      this.asteroids = this.asteroids.filter(asteroid => asteroid !== oldAsteroid);
+
+      console.log("destroyed asteroid", newAsteroids)
+
+      for(const asteroid of newAsteroids) {
+        this.asteroids.push(asteroid);
+        // @ts-expect-error deez nuts
+        this.laserGroup.addObjectToCollideWith(asteroid.gameObject, destroyAsteroid);
+      }
+    }
+    // @ts-expect-error deez nuts
+    this.laserGroup.addObjectToCollideWith(this.asteroids[0].gameObject, destroyAsteroid);
 
     this.keys = this.input.keyboard.createCursorKeys();
   }

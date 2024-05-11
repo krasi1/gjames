@@ -4,6 +4,7 @@ import generatePolygon from "../math/generatePolygon";
 import hasAdjSide from "../math/hasAdjSide";
 
 import { Triangle } from "../math/triangleTypes";
+import * as _ from "lodash";
 
 export default class Asteroid {
   points: [number, number][];
@@ -13,6 +14,7 @@ export default class Asteroid {
 
   constructor(
     protected scene: Scene,
+    public position: { x: number; y: number },
     _points?: [number, number][],
     _triangles?: Triangle[],
     _triangleColors?: number[]
@@ -44,7 +46,7 @@ export default class Asteroid {
     const polyWidth = maxX - minX;
     const polyHeight = maxY - minY;
 
-    const triangleContainer = this.scene.add.container(this.scene.cameras.main.centerX, this.scene.cameras.main.centerY);
+    const triangleContainer = this.scene.add.container(this.position.x, this.position.y);
     for (let i = 0; i < this.triangles.length; i++) {
       const triangleObject = this.createTriangle(
         0,
@@ -68,20 +70,29 @@ export default class Asteroid {
 
   destroyAsteroid() {
     const groups: number[][] = this.groupSubPolygons(this.triangles);
+    const newAsteroids: Asteroid[] = [];
 
     for(let i = 0; i<groups.length; i++){
       if(groups[i].length<2)    // groups with 1 triangle are not drawn
         continue;
+
+      const triangles: Triangle[] = [];
+      const triangleColors: number[] = [];
+      const flatPoints: number[] = [];
       for(let j=0; j<groups[i].length; j++) {
-          // this.createTriangle(
-          //   scene.cameras.main.centerX,
-          //   scene.cameras.main.centerY+200,
-          //   // @ts-expect-error deez nuts
-          //   triangles[groups[i][j]],
-          //   colors[i]
-          // );
-      }
+        triangles.push(this.triangles[groups[i][j]]);
+        triangleColors.push(this.triangleColors[groups[i][j]]);
+          const trianglePoints = _.flatten(this.triangles[groups[i][j]]);
+          flatPoints.push(...trianglePoints);
+        }
+        const newPoints = _.uniqWith(flatPoints, _.isEqual);
+        const asteroid = new Asteroid(this.scene,{ ...this.gameObject.body.position } ,newPoints, triangles, triangleColors);
+        newAsteroids.push(asteroid);
     }
+
+    this.gameObject.destroy();
+
+    return newAsteroids;
   }
 
   private groupSubPolygons(triangles: Triangle[]) {
