@@ -11,6 +11,7 @@ import { ProjectileGroup, Pattern } from "../systems/ProjectileSystem";
 
 export class Game extends Scene {
   background: GameObjects.TileSprite;
+  backgroundTint: GameObjects.TileSprite;
   player: Player;
   keys: Types.Input.Keyboard.CursorKeys;
   bgFx: FX.ColorMatrix;
@@ -36,14 +37,21 @@ export class Game extends Scene {
         "nebula"
       )
       .setDepth(0);
-
+    this.backgroundTint = this.add
+    .tileSprite(
+      this.cameras.main.centerX,
+      this.cameras.main.centerY,
+      this.game.canvas.width,
+      this.game.canvas.height,
+      "nebula"
+    )
+    .setDepth(0);
+    this.backgroundTint.tint = 0xff0000;    // full red tint for the background
+    this.backgroundTint.alpha=0;            // transparent at the start
     //new Asteroid(this);
-
-    this.player = new Player(this);
-    this.laserGroup = new BulletGroup(this);
-    this.starBoss = new Star(this);
-    this.bossProjectileGroup = new ProjectileGroup(this);
-    new Asteroid(this);
+    //this.starBoss = new Star(this);
+    //this.bossProjectileGroup = new ProjectileGroup(this);
+    //new Asteroid(this);
     this.player = new Player(this);
     this.laserGroup = new BulletGroup(this);
     this.healthSystem.addObject(this.player.sprite, 100, ()=>this.player.destroy())
@@ -70,8 +78,10 @@ export class Game extends Scene {
 
   update() {
     this.background.tilePositionY -= config.background.scrollVelocity;
+    this.backgroundTint.tilePositionY -= config.background.scrollVelocity;
+    this.backgroundTint.alpha += 0.001;   // tinted background gets revealed gradually
     this.player.update(this.keys);
-    this.bossProjectileGroup.fireProjectile(this.cameras.main.centerX, 100, Pattern.TwoSplit);
+    //this.bossProjectileGroup.fireProjectile(this.cameras.main.centerX, 100, Pattern.TwoSplit);
     if (this.keys.space.isDown) {
       this.laserGroup.fireLaser(
         this.player.sprite.x,
