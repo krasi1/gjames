@@ -43,6 +43,37 @@ const config = {
         repeat: -1
       }
     }
+  },
+
+  boss: {
+    health: 20,
+    fireRate: 1
+  },
+  bossPatterns: {
+    patternTwoSplit: {
+      fireRate: 1.3,
+      velocityX: 300,
+      velocityY: 600,
+      projectileScale: 0.1
+    },
+    patternBigStraight: {
+      fireRate: 1,
+      velocityX: 0,
+      velocityY: 700,
+      projectileScale: 0.2
+    },
+    patternRing: {
+      fireRate: 0.5,
+      velocityX: 300,
+      velocityY: 200,
+      projectileScale: 0.1
+    },
+    patternLine: {
+      fireRate: 0.3,
+      velocityX: 0,
+      velocityY: 200,
+      projectileScale: 0.2
+    }
   }
 };
 

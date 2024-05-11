@@ -41,7 +41,8 @@ export default class Preload extends Scene {
       startFrame: 0,
       endFrame: 5
     });
-
+    this.load.image("star", "assets/image/star.png");
+    this.load.image("projectile", "assets/image/projectile.png");
     // this.load.on("fileprogress", (file) => {
     //   const previousLoad = file.previousLoad || 0;
 
