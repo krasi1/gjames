@@ -117,7 +117,8 @@ export class Game extends Scene {
   private hookAsteroidToGameFeatures(asteroid: Asteroid) {
     this.healthSystem.addObject(asteroid.gameObject, 100, () => this.destroyAsteroid(asteroid));
     // @ts-expect-error deez nuts
-    this.laserGroup.addObjectToCollideWith(asteroid.gameObject, () => {
+    this.laserGroup.addObjectToCollideWith(asteroid.gameObject, (_, bullet) => {
+      bullet.destroy();
       this.healthSystem.takeDamage(asteroid.gameObject, 10);
     });
   }
