@@ -4,7 +4,10 @@ const config = {
   },
 
   player: {
-    velocity: 150
+    velocity: 200,
+    fireRate: 10,
+    bulletVelocity: 700,
+    bulletScale:3
   },
   playerAnims: {
     ship: {
@@ -25,6 +28,17 @@ const config = {
       },
       frameConfig: {
         key: "loop",
+        frameRate: 15 ,
+        repeat: -1
+      }
+    },
+    fire1:{
+      frames: {
+        start: 0,
+        end: 4
+      },
+      frameConfig: {
+        key: "fire1",
         frameRate: 20,
         repeat: -1
       }
