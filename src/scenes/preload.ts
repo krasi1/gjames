@@ -24,7 +24,6 @@ export default class Preload extends Scene {
     this.load.image("nebula", "assets/image/nebula.png");
     this.load.image("ship", "assets/image/ship.png");
     this.load.image("sun", "assets/image/sun.png");
-    this.load.image("smoke", "assets/image/smoke0.png");
 
 
     this.load.spritesheet("engine", "assets/spritesheet/shipEngine.png", {
