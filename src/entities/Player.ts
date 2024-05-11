@@ -48,4 +48,9 @@ export default class Player {
       this.sprite.setVelocityY(-config.player.velocity);
     } else this.sprite.setVelocityY(0);
   }
+
+  destroy() {
+    this.sprite.destroy()
+    this.engineAnim.destroy()
+  }
 }

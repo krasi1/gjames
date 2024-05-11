@@ -1,6 +1,7 @@
 import { FX, GameObjects, Physics, Scene, Types } from "phaser";
 import Player from "../entities/Player";
 import config from "../gameConfig";
+import HealthSystem from "../systems/HealthSystem"
 
 import Asteroid from "../entities/Asteroid";
 
@@ -12,6 +13,7 @@ export class Game extends Scene {
   keys: Types.Input.Keyboard.CursorKeys;
   bgFx: FX.ColorMatrix;
   laserGroup: BulletGroup;
+  healthSystem: HealthSystem
 
   constructor() {
     super({
@@ -20,6 +22,7 @@ export class Game extends Scene {
   }
 
   create(): void {
+    this.healthSystem = new HealthSystem(this)
     this.background = this.add
       .tileSprite(
         this.cameras.main.centerX,
@@ -33,11 +36,13 @@ export class Game extends Scene {
     new Asteroid(this);
     this.player = new Player(this);
     this.laserGroup = new BulletGroup(this);
+    this.healthSystem.addObject(this.player.sprite, 100, ()=>this.player.destroy())
 
     const dummy = this.physics.add.sprite(this.cameras.main.centerX, this.cameras.main.centerY, "sun");
+    dummy.body.setCircle(dummy.width / 2);
     dummy.body.setImmovable()
     dummy.setCollideWorldBounds(true)
-
+    this.healthSystem.addObject(dummy, 100, () => dummy.destroy())
 
     this.laserGroup.addObjectToCollideWith(dummy, (obj, bullet) => {
       bullet.destroy();
@@ -49,7 +54,6 @@ export class Game extends Scene {
         onComplete: () => { dummy.clearTint(); }
       });
     })
-
 
     this.keys = this.input.keyboard.createCursorKeys();
   }
