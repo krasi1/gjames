@@ -74,6 +74,29 @@ const config = {
       velocityY: 200,
       projectileScale: 0.2
     }
+  },
+  mineral: {
+    spriteScale: 0.1
+  },
+  powerUp: {
+    fireRateUp: {
+      mult: 2,
+      duration: 10,
+      color: 0x1fff5e
+    },
+    damageUp: {
+      mult: 2,
+      duration: 10,
+      color: 0xc73a45
+    },
+    splitShot: {
+      mult: 2,
+      duration: 10,
+      color: 0xffd500
+    },
+    weaponUpgrade: {
+      color: 0x3289a8
+    }
   }
 };
 

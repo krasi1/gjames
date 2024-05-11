@@ -5,6 +5,7 @@ import config from "../gameConfig";
 import HealthSystem from "../systems/HealthSystem"
 
 import Asteroid from "../entities/Asteroid";
+import { Mineral, PowerUpType } from "../entities/Mineral";
 
 import { BulletGroup, Bullet } from "../systems/BulletSystem";
 import { ProjectileGroup, Pattern, Projectile } from "../systems/ProjectileSystem";
@@ -20,6 +21,7 @@ export class Game extends Scene {
   bossProjectileGroup: ProjectileGroup;
   healthSystem: HealthSystem
   asteroids: Asteroid[];
+  minerals: Mineral[];
 
   constructor() {
     super({
@@ -51,6 +53,12 @@ export class Game extends Scene {
     this.backgroundTint.alpha=0;            // transparent at the start
 
     this.asteroids = [new Asteroid(this, { x: this.cameras.main.centerX, y: this.cameras.main.centerY })];
+    this.minerals = [
+      new Mineral(this, 200, 600, PowerUpType.FireRateUp)
+      // new Mineral(this, 400, 600, PowerUpType.DamageUp),
+      // new Mineral(this, 600, 600, PowerUpType.SplitShot)
+    ];
+    this.minerals[0].sprite.body.setCircle(this.minerals[0].sprite.width/2);
 
     this.player = new Player(this);
     this.starBoss = new Star(this);
@@ -63,7 +71,7 @@ export class Game extends Scene {
     this.starBoss.sprite.body.pushable = false
 
     this.starBoss.sprite.setCollideWorldBounds(true)
-    this.healthSystem.addObject(this.starBoss.sprite, 100, () => this.starBoss.sprite.destroy())
+    this.healthSystem.addObject(this.starBoss.sprite, config.boss.health, () => this.starBoss.sprite.destroy())
     this.healthSystem.addObject(this.player.sprite, 300, () => this.player.destroy(), () => {
       this.tweens.add({
         targets: this.player.sprite,
@@ -81,6 +89,10 @@ export class Game extends Scene {
       }
     })
 
+    this.physics.add.collider(this.player.sprite, this.minerals[0].sprite, () => {
+      this.minerals[0].destroyMineral(this.laserGroup);
+    })
+
     this.laserGroup.addObjectToCollideWith(this.starBoss.sprite, (obj, bullet) => {
       bullet.destroy();
       this.tweens.add({
@@ -96,7 +108,6 @@ export class Game extends Scene {
       const oldAsteroid = this.asteroids.find(asteroid => asteroid.gameObject === obj);
 
       if(!oldAsteroid) return;
-
       const newAsteroids = oldAsteroid.destroyAsteroid();
       this.asteroids = this.asteroids.filter(asteroid => asteroid !== oldAsteroid);
 
@@ -111,7 +122,6 @@ export class Game extends Scene {
 
     this.keys = this.input.keyboard.createCursorKeys();
   }
-
 
   update() {
     this.background.tilePositionY -= config.background.scrollVelocity;

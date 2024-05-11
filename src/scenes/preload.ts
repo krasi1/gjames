@@ -46,6 +46,7 @@ export default class Preload extends Scene {
     });
     this.load.image("star", "assets/image/star.png");
     this.load.image("projectile", "assets/image/projectile.png");
+    this.load.image("mineral", "assets/image/gem.png");
     // this.load.on("fileprogress", (file) => {
     //   const previousLoad = file.previousLoad || 0;
 
