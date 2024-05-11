@@ -7,10 +7,17 @@ import { Triangle } from "../math/triangleTypes";
 
 export default class Asteroid {
   points: [number, number][];
+  gameObject: Phaser.GameObjects.Container;
+  triangles: Triangle[];
+  triangleColors: number[];
 
-  constructor(protected scene: Scene) {
-
-    this.points = generatePolygon(
+  constructor(
+    protected scene: Scene,
+    _points?: [number, number][],
+    _triangles?: Triangle[],
+    _triangleColors?: number[]
+  ) {
+    this.points = _points ?? generatePolygon(
       [0, 0],
       [Math.PI * 1.2, 1.7 * Math.PI],
       [0.4, 0.7],
@@ -20,35 +27,59 @@ export default class Asteroid {
       PhaserMath.Between(10, 20)
     );
 
-    const triangles = this.splitToTriangles();
-    const colorStep = 255 / (triangles.length);
+    this.triangles = _triangles ?? this.splitToTriangles();
+    const colorStep = 255 / (this.triangles.length);
+    this.triangleColors = _triangleColors ?? Array.from({ length: this.triangles.length }, (_, i) => 0x000000 + i * colorStep);
 
-    for (let i = 0; i<triangles.length; i++) {
-      this.drawTriangle(
-        scene.cameras.main.centerX,
-        scene.cameras.main.centerY-200,
-        // @ts-expect-error deez nuts
-        triangles[i],
-        0x000000 + i * colorStep,
-        scene);
+    let minX = 0;
+    let minY = 0;
+    let maxX = 0;
+    let maxY = 0;
+    for(const point of this.points) {
+      minX = Math.min(minX, point[0]);
+      minY = Math.min(minY, point[1]);
+      maxX = Math.max(maxX, point[0]);
+      maxY = Math.max(maxY, point[1]);
     }
+    const polyWidth = maxX - minX;
+    const polyHeight = maxY - minY;
 
-    const groups: number[][] = this.groupSubPolygons(triangles);
+    const triangleContainer = this.scene.add.container(this.scene.cameras.main.centerX, this.scene.cameras.main.centerY);
+    for (let i = 0; i < this.triangles.length; i++) {
+      const triangleObject = this.createTriangle(
+        0,
+        0,
+        // @ts-expect-error deez nuts
+        this.triangles[i],
+        this.triangleColors[i]
+        );
 
-    const colors = [0xc7adad, 0x663838, 0x82a828, 0x28a888, 0x640b70, 0xb80f2b, 0x075208];  //colors for groups
+      triangleContainer.add(triangleObject);
+    }
+    triangleContainer.setSize(polyWidth, polyHeight);
+    this.scene.physics.world.enable(triangleContainer);
+
+    const containerBody = triangleContainer.body as Phaser.Physics.Arcade.Body;
+    containerBody.setVelocity(100, 100);
+    containerBody.setCollideWorldBounds(true, 1, 1, true);
+
+    this.gameObject = triangleContainer;
+  }
+
+  destroyAsteroid() {
+    const groups: number[][] = this.groupSubPolygons(this.triangles);
 
     for(let i = 0; i<groups.length; i++){
       if(groups[i].length<2)    // groups with 1 triangle are not drawn
         continue;
       for(let j=0; j<groups[i].length; j++) {
-          this.drawTriangle(
-            scene.cameras.main.centerX,
-            scene.cameras.main.centerY+200,
-            // @ts-expect-error deez nuts
-            triangles[groups[i][j]],
-            colors[i],
-            scene
-          );
+          // this.createTriangle(
+          //   scene.cameras.main.centerX,
+          //   scene.cameras.main.centerY+200,
+          //   // @ts-expect-error deez nuts
+          //   triangles[groups[i][j]],
+          //   colors[i]
+          // );
       }
     }
   }
@@ -126,9 +157,9 @@ export default class Asteroid {
     return triangles;
   }
 
-  drawTriangle(x:number, y:number, coords:number[], col:number, scene: Scene) {
-    const graphics = scene.add.graphics();
-    graphics.fillStyle(col, 1);
+  createTriangle(x:number, y:number, coords:number[], color:number) {
+    const graphics = this.scene.add.graphics();
+    graphics.fillStyle(color, 1);
     graphics.fillTriangle(
       coords[0][0],
       coords[0][1],
@@ -139,5 +170,12 @@ export default class Asteroid {
     );
     graphics.closePath();
     graphics.setPosition(x, y);
+
+    return graphics;
+  }
+
+  update() {
+    // do nothing
+    // console.log("Asteroid update", this.body.position.x, this.body.position.y);
   }
 }

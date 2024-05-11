@@ -1,4 +1,4 @@
-import { FX, GameObjects, Physics, Scene, Types} from "phaser";
+import { FX, GameObjects, Physics, Scene, Types } from "phaser";
 import Player from "../entities/Player";
 import Star from "../entities/Star";
 import config from "../gameConfig";
@@ -18,6 +18,7 @@ export class Game extends Scene {
   starBoss: Star;
   bossProjectileGroup: ProjectileGroup;
   healthSystem: HealthSystem
+  asteroid: Asteroid;
 
   constructor() {
     super({
@@ -37,7 +38,7 @@ export class Game extends Scene {
       )
       .setDepth(0);
 
-    //new Asteroid(this);
+    this.asteroid = new Asteroid(this);
 
     this.player = new Player(this);
     this.laserGroup = new BulletGroup(this);
