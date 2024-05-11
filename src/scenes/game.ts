@@ -52,7 +52,7 @@ export class Game extends Scene {
 
     this.starBoss.sprite.setCollideWorldBounds(true)
     this.healthSystem.addObject(this.starBoss.sprite, 100, () => this.starBoss.sprite.destroy())
-    this.healthSystem.addObject(this.player.sprite, 300, () => this.player.destroy(), () => {
+    this.healthSystem.addObject(this.player.sprite, 3000, () => this.player.destroy(), () => {
       this.tweens.add({
         targets: this.player.sprite,
         tint: 0xff0000,
@@ -60,8 +60,6 @@ export class Game extends Scene {
         yoyo: true,
       });
     })
-
-
 
 
     this.physics.add.collider(this.player.sprite, this.bossProjectileGroup, (player, projectile: Projectile) => {
