@@ -133,7 +133,4 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
     this.setVisible(true);
     this.setVelocity(velocityX, velocityY);
   }
-
-
-
 }

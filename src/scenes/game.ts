@@ -32,7 +32,7 @@ export class Game extends Scene {
       key: "GameScene"
     });
   }
-
+  
   create(): void {
     this.background = new Background(this);
     this.healthSystem = new HealthSystem(this);
@@ -56,7 +56,6 @@ export class Game extends Scene {
         }
       }
     });
-
     this.starBoss = new Star(this);
 
     this.time.addEvent({
@@ -107,7 +106,7 @@ export class Game extends Scene {
       this,
       oldPoint.x,
       oldPoint.y,
-      Phaser.Math.Between(0, 3)
+      Phaser.Math.Between(2, 2)
     );
     mineral?.sprite.body.setCircle(mineral?.sprite.width / 2);
     this.physics.add.collider(this.player.sprite, mineral?.sprite, () => {

@@ -129,7 +129,7 @@ const config = {
       color: 0xc73a45
     },
     splitShot: {
-      mult: 2,
+      mult: 1,
       duration: 10,
       color: 0xffd500
     },

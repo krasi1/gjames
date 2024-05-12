@@ -58,9 +58,11 @@ export class Mineral {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   splitShot(laserGroup: BulletGroup) {
     console.log("Triggered Split Shot");
-    // const mult = config.powerUp.splitShot.mult;
-    // const dur = config.powerUp.splitShot.duration;
-    // TODO: make player shoot mult bullets at a time for dur amount of time
+    const mult = config.powerUp.splitShot.mult;
+    const dur = config.powerUp.splitShot.duration;
+    laserGroup.numShots += mult;
+    console.log("num shots: %d", laserGroup.numShots);
+    after(dur, ()=> (laserGroup.numShots-= mult));
   }
 
   weaponUpgrade(laserGroup: BulletGroup) {

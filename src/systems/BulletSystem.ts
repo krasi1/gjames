@@ -12,6 +12,7 @@ export class BulletGroup extends Physics.Arcade.Group {
   maxLevel = 4;
   damageMult = 1;
   fireRateMult = 1;
+  numShots = 1;
 
   constructor(scene: Scene) {
     super(scene.physics.world, scene);
@@ -53,14 +54,20 @@ export class BulletGroup extends Physics.Arcade.Group {
       return;
     }
     if (this.scene.time.now - this.lastFired > this.fireRate) {
-      const bullet = this.getFirstDead(true) as Bullet;
-      if (bullet) {
-        bullet.setScale(this.bulletConfig.bulletScale);
-        bullet.setTint(this.bulletConfig.tint);
-        bullet.play("fire1");
-        bullet.fire(x, y, this.bulletConfig.bulletVelocity);
-        this.lastFired = this.scene.time.now;
+      for(let i = 1; i <= this.numShots; i++) {
+        const half = (this.numShots+1)/2;
+        const flip = -1*(i<=half?1:-1);
+        const bullet = this.getFirstDead(true) as Bullet;
+        if (bullet) {
+          bullet.setScale(this.bulletConfig.bulletScale);
+          bullet.setTint(this.bulletConfig.tint);
+          bullet.play("fire1");
+          bullet.fire(x, y,
+            flip*this.bulletConfig.bulletVelocity*Math.abs(half-i)/3,
+            this.bulletConfig.bulletVelocity);
+        }
       }
+      this.lastFired = this.scene.time.now;
     }
   }
 
@@ -119,10 +126,10 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
       this.setVisible(false);
     }
   }
-  fire(x, y, velocity) {
+  fire(x, y, velocityX, velocityY) {
     this.body.reset(x, y);
     this.setActive(true);
     this.setVisible(true);
-    this.setVelocityY(-velocity);
+    this.setVelocity(velocityX, -velocityY);
   }
 }
