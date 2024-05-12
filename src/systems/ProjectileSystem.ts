@@ -2,10 +2,10 @@ import { Math as PhaserMath, Physics, Scene } from "phaser";
 import config from "../gameConfig";
 
 export enum Pattern {
-    BigStraight,
-    TwoSplit,
-    Ring,
-    Line
+  BigStraight,
+  TwoSplit,
+  Ring,
+  Line,
 }
 
 export class ProjectileGroup extends Physics.Arcade.Group {
@@ -18,8 +18,11 @@ export class ProjectileGroup extends Physics.Arcade.Group {
   // 1 - double split shot
   // 2 - "ring" shot (more like volley)
   // 3 - multiple projectiles at once in a line
-  attackPatterns : { (x: number, y: number): void; }[] = [];
-  currentPattern: number = PhaserMath.Between(Pattern.BigStraight, Pattern.Line);
+  attackPatterns: { (x: number, y: number): void }[] = [];
+  currentPattern: number = PhaserMath.Between(
+    Pattern.BigStraight,
+    Pattern.Line
+  );
 
   constructor(scene: Scene) {
     super(scene.physics.world, scene);
@@ -37,106 +40,131 @@ export class ProjectileGroup extends Physics.Arcade.Group {
     });
 
     this.fireRate = 1000 / config.boss.fireRate;
-
   }
 
-fireProjectile(x: number, y: number) {
+  fireProjectile(x: number, y: number) {
     this.attackPatterns[this.currentPattern](x, y);
-}
+  }
 
-patternTwoSplit = (x: number, y: number) => {
+  patternTwoSplit = (x: number, y: number) => {
     this.fireRate = 1000 / config.bossPatterns.patternTwoSplit.fireRate;
     if (this.scene.time.now - this.lastFired > this.fireRate) {
-        for(let i = 0; i<2; i++) {
-            const flip = -1*(i%2?1:-1);
-            const projectile = this.getFirstDead(true) as Projectile;
-            if(projectile) {
-                projectile.setScale(config.bossPatterns.patternTwoSplit.projectileScale);
-                projectile.fire(x, y,
-                    config.bossPatterns.patternTwoSplit.velocityX*flip,
-                    config.bossPatterns.patternTwoSplit.velocityY);
-            }
+      for (let i = 0; i < 4; i++) {
+        const flip = -1 * (i % 2 ? 1 : -1);
+        const projectile = this.getFirstDead(true) as Projectile;
+        if (projectile) {
+          projectile.setScale(
+            config.bossPatterns.patternTwoSplit.projectileScale
+          );
+          projectile.fire(
+            x,
+            y,
+            config.bossPatterns.patternTwoSplit.velocityX * flip + i * 30,
+            config.bossPatterns.patternTwoSplit.velocityY
+          );
         }
-        this.lastFired = this.scene.time.now;
-        this.currentPattern = PhaserMath.Between(Pattern.BigStraight, Pattern.Line);
+      }
+      this.lastFired = this.scene.time.now;
+      this.currentPattern = PhaserMath.Between(
+        Pattern.BigStraight,
+        Pattern.Line
+      );
     }
-  }
+  };
 
   patternBigStraight = (x: number, y: number) => {
     this.fireRate = 1000 / config.bossPatterns.patternBigStraight.fireRate;
     if (this.scene.time.now - this.lastFired > this.fireRate) {
-        const projectile = this.getFirstDead(true) as Projectile;
-        if (projectile) {
-        projectile.setScale(config.bossPatterns.patternBigStraight.projectileScale);
-        projectile.fire(x, y,
-            config.bossPatterns.patternBigStraight.velocityX,
-            config.bossPatterns.patternBigStraight.velocityY
+      const projectile = this.getFirstDead(true) as Projectile;
+      if (projectile) {
+        projectile.setScale(
+          config.bossPatterns.patternBigStraight.projectileScale
+        );
+        projectile.fire(
+          x,
+          y,
+          config.bossPatterns.patternBigStraight.velocityX,
+          config.bossPatterns.patternBigStraight.velocityY
         );
         this.lastFired = this.scene.time.now;
-        }
-        this.currentPattern = PhaserMath.Between(Pattern.BigStraight, Pattern.Line);
+      }
+      this.currentPattern = PhaserMath.Between(
+        Pattern.BigStraight,
+        Pattern.Line
+      );
     }
-  }
+  };
 
-  patternRing = (x: number, y:number) => {
+  patternRing = (x: number, y: number) => {
     this.fireRate = 1000 / config.bossPatterns.patternRing.fireRate;
     if (this.scene.time.now - this.lastFired > this.fireRate) {
-        for(let i = 1; i<8; i++) {
-            const flip = -1*(i/2<=2?1:-1);
-            const projectile = this.getFirstDead(true) as Projectile;
-            if (projectile) {
-                projectile.setScale(config.bossPatterns.patternRing.projectileScale);
-                projectile.fire(x, y,
-                    config.bossPatterns.patternRing.velocityX*flip*Math.abs(4-i),
-                    config.bossPatterns.patternRing.velocityY*(4-Math.abs(4-i))
-            );
-            this.lastFired = this.scene.time.now;
-            }
+      for (let i = 1; i < 8; i++) {
+        const flip = -1 * (i / 2 <= 2 ? 1 : -1);
+        const projectile = this.getFirstDead(true) as Projectile;
+        if (projectile) {
+          projectile.setScale(config.bossPatterns.patternRing.projectileScale);
+          projectile.fire(
+            x,
+            y,
+            config.bossPatterns.patternRing.velocityX * flip * Math.abs(4 - i),
+            config.bossPatterns.patternRing.velocityY * (4 - Math.abs(4 - i))
+          );
+          this.lastFired = this.scene.time.now;
         }
-        this.currentPattern = PhaserMath.Between(Pattern.BigStraight, Pattern.Line);
+      }
+      this.currentPattern = PhaserMath.Between(
+        Pattern.BigStraight,
+        Pattern.Line
+      );
     }
-  }
+  };
 
   patternLine = (x: number, y: number) => {
     this.fireRate = 1000 / config.bossPatterns.patternLine.fireRate;
     if (this.scene.time.now - this.lastFired > this.fireRate) {
-        for(let i = 2; i<7; i++) {
-            const projectile = this.getFirstDead(true) as Projectile;
-            if (projectile) {
-                projectile.setScale(config.bossPatterns.patternLine.projectileScale);
-                projectile.fire(x, y,
-                    config.bossPatterns.patternLine.velocityX,
-                    config.bossPatterns.patternLine.velocityY*i
-            );
-            this.lastFired = this.scene.time.now;
-            }
+      for (let i = 2; i < 7; i++) {
+        const projectile = this.getFirstDead(true) as Projectile;
+        if (projectile) {
+          projectile.setScale(config.bossPatterns.patternLine.projectileScale);
+          projectile.fire(
+            x,
+            y,
+            config.bossPatterns.patternLine.velocityX,
+            config.bossPatterns.patternLine.velocityY * i
+          );
+          this.lastFired = this.scene.time.now;
         }
-        this.currentPattern = PhaserMath.Between(Pattern.BigStraight, Pattern.Line);
+      }
+      this.currentPattern = PhaserMath.Between(
+        Pattern.BigStraight,
+        Pattern.Line
+      );
     }
-  }
+  };
 }
 
 export class Projectile extends Phaser.Physics.Arcade.Sprite {
-  collided = false
+  collided = false;
   constructor(scene, x, y) {
     super(scene, x, y, "projectile");
   }
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
 
-    if (this.y >= this.scene.cameras.main.height ||
-        this.x <= 0 ||
-        this.x >= this.scene.cameras.main.width) {
+    if (
+      this.y >= this.scene.cameras.main.height ||
+      this.x <= 0 ||
+      this.x >= this.scene.cameras.main.width
+    ) {
       this.setActive(false);
       this.setVisible(false);
     }
   }
   fire(x, y, velocityX, velocityY) {
     this.body?.reset(x, y);
-    this.collided = false
+    this.collided = false;
     this.setActive(true);
     this.setVisible(true);
     this.setVelocity(velocityX, velocityY);
   }
-
 }

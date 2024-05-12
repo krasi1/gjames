@@ -103,14 +103,14 @@ const config = {
   bossPatterns: {
     patternTwoSplit: {
       fireRate: 2.5,
-      velocityX: 300,
-      velocityY: 600,
+      velocityX: 200,
+      velocityY: 450,
       projectileScale: 0.1
     },
     patternBigStraight: {
       fireRate: 2,
       velocityX: 0,
-      velocityY: 700,
+      velocityY: 350,
       projectileScale: 0.2
     },
     patternRing: {
