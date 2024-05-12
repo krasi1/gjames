@@ -27,7 +27,8 @@ export class Game extends Scene {
   invisibleVerticalWalls: GameObjects.Rectangle[];
   topTriggerWall: GameObjects.Rectangle;
   spawnAsteroids: boolean;
-  healthBar: HealthBar;
+  playerHealthBar: HealthBar;
+  bossHealthBar: HealthBar;
 
   constructor() {
     super({
@@ -47,11 +48,15 @@ export class Game extends Scene {
     ];
     this.asteroids = [];
 
-    this.healthBar = new HealthBar(
+    this.playerHealthBar = new HealthBar(
       this,
+      30,
+      this.cameras.main.height - 50,
       400,
       30,
-      config.player.health
+      config.player.health,
+      0x00aa00
+
     );
 
     this.time.addEvent({
@@ -103,7 +108,7 @@ export class Game extends Scene {
         });
       },
       (damage: number) => {
-        this.healthBar.shrink(damage);
+        this.playerHealthBar.shrink(damage);
         this.tweens.add({
           targets: this.player.sprite,
           tint: 0xff0000,
@@ -341,10 +346,22 @@ export class Game extends Scene {
   }
 
   initBoss() {
+    this.bossHealthBar = new HealthBar(
+      this,
+      this.cameras.main.width - 650,
+      this.cameras.main.height - 50,
+      600,
+      30,
+      config.boss.health,
+      0xdd0000
+    );
     this.starBoss.sprite.body.setCircle(this.starBoss.sprite.width / 2);
     this.starBoss.sprite.body.pushable = false;
-    this.healthSystem.addObject(this.starBoss.sprite, config.boss.health, () =>
-      this.starBoss.destroy()
+    this.healthSystem.addObject(
+      this.starBoss.sprite,
+      config.boss.health,
+      () => this.starBoss.destroy(),
+      (damage: number) => this.bossHealthBar.shrink(damage)
     );
     this.player.collidesWith(this.starBoss.sprite, "collider", 400, () => {
       this.healthSystem.takeDamage(this.player.sprite, 50);

@@ -1,12 +1,12 @@
 const config = {
-  gameDuration: 90,
+  gameDuration: 75,
   background: {
     scrollVelocity: 0.2
   },
 
   player: {
     velocity: 450,
-    baseDamage: 15,
+    baseDamage: 13,
     health: 400,
 
     laserFireRate: 2,

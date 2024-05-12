@@ -6,9 +6,12 @@ export default class HealthBar extends Phaser.GameObjects.Container {
   value: number;
   constructor(
     public scene: Scene,
+    x,
+    y,
     width,
     height,
-    protected initialValue
+    protected initialValue,
+    color:number
   ) {
     super(scene);
 
@@ -21,15 +24,15 @@ export default class HealthBar extends Phaser.GameObjects.Container {
     this.add(this.background);
 
     this.bar = scene.add.graphics();
-    this.bar.fillStyle(0x00aa00, 1);
+    this.bar.fillStyle(color, 1);
     this.bar.fillRect(5, 5, width - 10, height - 10);
     this.add(this.bar);
 
     this.value = initialValue;
 
-    this.setPosition(30 , scene.cameras.main.height - height / 2 - 30);
-
     this.setDepth(3)
+
+    this.setPosition(x,y)
 
     scene.add.existing(this);
   }
