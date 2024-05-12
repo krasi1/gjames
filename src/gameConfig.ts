@@ -133,18 +133,18 @@ const config = {
   powerUp: {
     fireRateUp: {
       mult: 2,
-      duration: 10,
+      duration: 25,
       color: 0x1fff5e
     },
     damageUp: {
       mult: 1.4,
       bulletSize: 0.4,
-      duration: 10,
+      duration: 25,
       color: 0xc73a45
     },
     splitShot: {
       mult: 1,
-      duration: 10,
+      duration: 25,
       color: 0xffd500
     },
     weaponUpgrade: {
