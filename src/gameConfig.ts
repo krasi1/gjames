@@ -1,10 +1,12 @@
 const config = {
+  gameDuration: 120,
   background: {
     scrollVelocity: 0.2
   },
 
   player: {
     velocity: 400,
+    baseDamage: 10,
 
     laserFireRate: 2,
 
@@ -20,7 +22,6 @@ const config = {
         bulletScale: 6,
         fireRate: 11,
         tint: 0x00ff00
-
       },
       3: {
         bulletVelocity: 1000,
@@ -33,8 +34,7 @@ const config = {
         bulletScale: 8,
         fireRate: 14,
         tint: 0xff0000
-
-      },
+      }
     }
   },
   playerAnims: {

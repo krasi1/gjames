@@ -4,13 +4,14 @@ import config from "../gameConfig";
 export class BulletGroup extends Physics.Arcade.Group {
   lastFired = 0;
   scene: Scene;
-  fireRate: number;
-  laser: GameObjects.Sprite
-  firing = false
-  laserEnabled = false
-  bulletConfig = config.player.weapons[1]
-  currentLevel = 1
-  maxLevel = 5
+  laser: GameObjects.Sprite;
+  firing = false;
+  laserEnabled = false;
+  bulletConfig = config.player.weapons[1];
+  currentLevel = 1;
+  maxLevel = 4;
+  damageMult = 1;
+  fireRateMult = 1;
 
   constructor(scene: Scene) {
     super(scene.physics.world, scene);
@@ -24,18 +25,11 @@ export class BulletGroup extends Physics.Arcade.Group {
       key: "bolt"
     });
 
-    this.laser = this.scene.physics.add.sprite(0, 0, "fire2").setDepth(1)
+    this.laser = this.scene.physics.add.sprite(0, 0, "fire2").setDepth(1);
     this.laser.scaleY = 30;
     this.laser.scaleX = 5;
 
-    this.laser.visible = false
-
-
-
-
-    this.fireRate = 1000 / this.bulletConfig.fireRate;
-
-
+    this.laser.visible = false;
 
     const fire1 = {
       frames: scene.anims.generateFrameNumbers("fire1", {
@@ -51,21 +45,18 @@ export class BulletGroup extends Physics.Arcade.Group {
     };
     scene.anims.create(fire1);
     scene.anims.create(fire2);
-
   }
 
   fireBullets(x, y, playerSprite) {
-
     if (this.laserEnabled) {
-
-      this.fireLaser(playerSprite)
-      return
+      this.fireLaser(playerSprite);
+      return;
     }
     if (this.scene.time.now - this.lastFired > this.fireRate) {
       const bullet = this.getFirstDead(true) as Bullet;
       if (bullet) {
         bullet.setScale(this.bulletConfig.bulletScale);
-        bullet.setTint(this.bulletConfig.tint)
+        bullet.setTint(this.bulletConfig.tint);
         bullet.play("fire1");
         bullet.fire(x, y, this.bulletConfig.bulletVelocity);
         this.lastFired = this.scene.time.now;
@@ -74,37 +65,45 @@ export class BulletGroup extends Physics.Arcade.Group {
   }
 
   fireLaser(playerSprite: GameObjects.Sprite) {
-    this.laser.x = playerSprite.x
-    this.laser.y = playerSprite.y - 600
+    this.laser.x = playerSprite.x;
+    this.laser.y = playerSprite.y - 600;
+    console.log(this.laser);
     if (!this.firing) {
-      this.laser.visible = true
-      this.laser.play("fire2")
-      this.firing = true
+      this.laser.visible = true;
+      this.laser.play("fire2");
+      this.firing = true;
     }
-
-
   }
 
-  addObjectToCollideWith(object: Physics.Arcade.Sprite, cb: (object, bullet: Bullet) => void) {
-    this.scene.physics.add.overlap(object, this, cb);
-    this.scene.physics.add.overlap(object, this.laser, cb)
+  get damage() {
+    return config.player.baseDamage * this.damageMult;
+  }
 
+  get fireRate() {
+    return 1000 / (this.bulletConfig.fireRate * this.fireRateMult);
+  }
+
+  addObjectToCollideWith(
+    object: Physics.Arcade.Sprite,
+    cb: (object, bullet: Bullet) => void
+  ) {
+    this.scene.physics.add.overlap(object, this, cb);
+    this.scene.physics.add.overlap(object, this.laser, cb);
   }
 
   upgradeWeapon() {
-    if (this.currentLevel !== this.maxLevel) this.currentLevel++
+    if (this.currentLevel !== this.maxLevel) this.currentLevel++;
 
-    if (this.currentLevel === this.maxLevel) {
-      this.laserEnabled = true
-      this.fireRate = 1000 / config.player.laserFireRate
-    }
-    this.bulletConfig = config.player.weapons[Math.min(this.currentLevel, 4)]
-    this.fireRate = 1000 / this.bulletConfig.fireRate
+    // if (this.currentLevel === this.maxLevel) {
+    //   this.laserEnabled = true;
+    //   this.fireRate = 1000 / config.player.laserFireRate;
+    // }
+    this.bulletConfig = config.player.weapons[Math.min(this.currentLevel, 4)];
   }
 
   stopFiringLaser() {
-    this.firing = false
-    this.laser.visible = false
+    this.firing = false;
+    this.laser.visible = false;
   }
 }
 
