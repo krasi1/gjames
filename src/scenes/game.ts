@@ -25,7 +25,7 @@ export class Game extends Scene {
   invisibleSideWalls: GameObjects.Rectangle[];
   invisibleVerticalWalls: GameObjects.Rectangle[];
   topTriggerWall: GameObjects.Rectangle;
-  spawnAsteroids = true;
+  spawnAsteroids: boolean;
 
   constructor() {
     super({
@@ -36,6 +36,7 @@ export class Game extends Scene {
   create(): void {
     this.background = new Background(this);
     this.healthSystem = new HealthSystem(this);
+    this.spawnAsteroids = true;
 
     const spawnPoints = [
       this.cameras.main.centerX - 500,
@@ -80,6 +81,7 @@ export class Game extends Scene {
       this.player.sprite,
       config.player.health,
       () => {
+        this.laserGroup.isEnabled = false;
         this.player.destroy();
         this.tweens.add({
           targets: this.cameras.main,
@@ -110,7 +112,7 @@ export class Game extends Scene {
       x: oldAsteroid.gameObject.x,
       y: oldAsteroid.gameObject.y
     };
-    if(Math.random()<config.mineral.spawnChance) {
+    if (Math.random() < config.mineral.spawnChance) {
       const mineral = new Mineral(
         this,
         oldPoint.x,
@@ -325,8 +327,7 @@ export class Game extends Scene {
     if (this.keys.space.isDown) {
       this.laserGroup.fireBullets(
         this.player.sprite.x,
-        this.player.sprite.y - 20,
-        this.player.sprite
+        this.player.sprite.y - 20
       );
     } else this.laserGroup.stopFiringLaser();
   }
@@ -335,7 +336,7 @@ export class Game extends Scene {
     this.starBoss.sprite.body.setCircle(this.starBoss.sprite.width / 2);
     this.starBoss.sprite.body.pushable = false;
     this.healthSystem.addObject(this.starBoss.sprite, config.boss.health, () =>
-      this.starBoss.sprite.destroy()
+      this.starBoss.destroy()
     );
     this.player.collidesWith(this.starBoss.sprite, "collider", 400, () => {
       this.healthSystem.takeDamage(this.player.sprite, 50);
