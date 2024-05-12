@@ -144,7 +144,7 @@ const config = {
     },
     splitShot: {
       mult: 1,
-      duration: 25,
+      duration: 35,
       color: 0xffd500
     },
     weaponUpgrade: {
