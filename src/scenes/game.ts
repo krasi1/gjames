@@ -226,9 +226,18 @@ export class Game extends Scene {
   }
 
   private hookAsteroidToGameFeatures(asteroid: Asteroid) {
+    const destroyAsteroidCb = (asteroid: Asteroid["gameObject"]) => {
+      console.log("destroyed asteroid after leaving the screen");
+      asteroid.destroy();
+      this.asteroids = this.asteroids.filter((a) => a.gameObject !== asteroid);
+      this.healthSystem.trackedObjects.delete(asteroid);
+    };
+
     let playerRedTintTween: Phaser.Tweens.Tween = null;
     this.player.collidesWith(asteroid.gameObject, "collider", 400, () => {
       this.healthSystem.takeDamage(this.player.sprite, 300);
+      // destroy asteroid with no reward after player collision
+      destroyAsteroidCb(asteroid.gameObject);
       playerRedTintTween?.seek(0).stop();
       this.player.sprite.clearTint();
       playerRedTintTween = this.tweens.add({
@@ -270,12 +279,7 @@ export class Game extends Scene {
       asteroid.body.setVelocityX(-1 * asteroid.body.velocity.x);
     });
 
-    const destroyAsteroidCb = (asteroid: Asteroid["gameObject"]) => {
-      console.log("destroyed asteroid after leaving the screen");
-      asteroid.destroy();
-      this.asteroids = this.asteroids.filter((a) => a.gameObject !== asteroid);
-      this.healthSystem.trackedObjects.delete(asteroid);
-    };
+   
 
     const [topWall, bottomWall] = this.invisibleVerticalWalls;
 
