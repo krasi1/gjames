@@ -230,6 +230,7 @@ export class Game extends Scene {
     this.player.collidesWith(asteroid.gameObject, "collider", 400, () => {
       this.healthSystem.takeDamage(this.player.sprite, 300);
       playerRedTintTween?.seek(0).stop();
+      this.player.sprite.clearTint();
       playerRedTintTween = this.tweens.add({
         targets: this.player.sprite,
         tint: 0xff0000,
@@ -253,6 +254,7 @@ export class Game extends Scene {
       this.healthSystem.takeDamage(asteroid.gameObject, 10);
       // tint the asteroid red
       alphaTween?.seek(0).stop();
+      asteroid.gameObject.alpha = 1;
       alphaTween = this.tweens.add({
         targets: asteroid.gameObject,
         alpha: 0.3,
@@ -338,6 +340,7 @@ export class Game extends Scene {
           return;
         }
         bossDamageTween?.seek(0).stop();
+        obj.clearTint();
         bossDamageTween = this.tweens.add({
           targets: obj,
           tint: 0xff0000,
