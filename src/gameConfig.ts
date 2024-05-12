@@ -7,7 +7,7 @@ const config = {
   player: {
     velocity: 450,
     baseDamage: 13,
-    health: 400,
+    health: 450,
 
     laserFireRate: 2,
 

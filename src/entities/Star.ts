@@ -1,6 +1,7 @@
-import { Physics, Scene } from "phaser";
+import { Physics, Scene, Math as PhaserMath } from "phaser";
 import config from "../gameConfig";
 import { ProjectileGroup } from "../systems/ProjectileSystem";
+import { after } from "../utils";
 //import { BulletGroup } from "../systems/BulletSystem";
 //import config from "../gameConfig";
 
@@ -16,10 +17,13 @@ export default class Star {
       .setName("BOSS");
     this.projectileGroup = new ProjectileGroup(scene);
     scene.time.addEvent({
-      delay: 3000,
+      delay: 1000,
       loop: true,
       callback: () => {
-        this.velocity = -this.velocity;
+        if (!this.isActive) return
+        after(PhaserMath.Between(2, 3), () => {
+          this.sprite.setVelocityX(-this.sprite.body.velocity.x)
+        })
       }
     });
   }
@@ -37,7 +41,7 @@ export default class Star {
   }
 
   update() {
-    if (this.isActive) this.sprite.setVelocityX(this.velocity);
+    // if (this.isActive) this.sprite.setVelocityX(this.velocity);
   }
 
   fire() {
@@ -52,7 +56,7 @@ export default class Star {
       y: "-=400",
       duration: 2000,
       ease: "Linear",
-      onComplete:()=>{
+      onComplete: () => {
         this.scene.tweens.add({
           targets: this.scene.cameras.main,
           alpha: 0,

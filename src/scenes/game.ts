@@ -96,6 +96,7 @@ export class Game extends Scene {
       config.player.health,
       () => {
         this.laserGroup.isEnabled = false;
+        this.starBoss.isActive = false
         this.player.destroy();
         this.tweens.add({
           targets: this.cameras.main,
@@ -404,5 +405,10 @@ export class Game extends Scene {
       }
     );
     this.starBoss.isActive = true;
+    const wallColliders = this.invisibleSideWalls;
+    this.starBoss.sprite.setVelocityX(config.boss.velocity);
+    this.physics.add.overlap(this.starBoss.sprite, wallColliders, (asteroid) => {
+      this.starBoss.sprite.setVelocityX(-1 * this.starBoss.sprite.body.velocity.x);
+    });
   }
 }
