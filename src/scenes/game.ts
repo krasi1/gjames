@@ -226,9 +226,11 @@ export class Game extends Scene {
   }
 
   private hookAsteroidToGameFeatures(asteroid: Asteroid) {
+    let playerRedTintTween: Phaser.Tweens.Tween = null;
     this.player.collidesWith(asteroid.gameObject, "collider", 400, () => {
       this.healthSystem.takeDamage(this.player.sprite, 300);
-      this.tweens.add({
+      playerRedTintTween?.seek(0).stop();
+      playerRedTintTween = this.tweens.add({
         targets: this.player.sprite,
         tint: 0xff0000,
         duration: 0.5,
@@ -238,6 +240,8 @@ export class Game extends Scene {
     this.healthSystem.addObject(asteroid.gameObject, 100, () =>
       this.destroyAsteroid(asteroid)
     );
+
+    let alphaTween: Phaser.Tweens.Tween = null;
     // @ts-expect-error deez nuts
     this.laserGroup.addObjectToCollideWith(asteroid.gameObject, (_, bullet) => {
       if (!this.laserGroup.laserEnabled) bullet.destroy();
@@ -248,7 +252,8 @@ export class Game extends Scene {
         return;
       this.healthSystem.takeDamage(asteroid.gameObject, 10);
       // tint the asteroid red
-      this.tweens.add({
+      alphaTween?.seek(0).stop();
+      alphaTween = this.tweens.add({
         targets: asteroid.gameObject,
         alpha: 0.3,
         duration: 0.2,
@@ -320,6 +325,7 @@ export class Game extends Scene {
     this.player.collidesWith(this.starBoss.sprite, "collider", 400, () => {
       this.healthSystem.takeDamage(this.player.sprite, 500);
     });
+    let bossDamageTween: Phaser.Tweens.Tween = null;
     this.laserGroup.addObjectToCollideWith(
       this.starBoss.sprite,
       (obj, bullet) => {
@@ -331,8 +337,8 @@ export class Game extends Scene {
           this.laserGroup.lastFired = this.time.now;
           return;
         }
-
-        this.tweens.add({
+        bossDamageTween?.seek(0).stop();
+        bossDamageTween = this.tweens.add({
           targets: obj,
           tint: 0xff0000,
           duration: 0.2,
