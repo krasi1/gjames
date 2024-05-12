@@ -14,6 +14,8 @@ export class BulletGroup extends Physics.Arcade.Group {
   fireRateMult = 1;
   numShots = 1;
 
+  isEnabled: boolean;
+
   constructor(scene: Scene) {
     super(scene.physics.world, scene);
 
@@ -25,6 +27,8 @@ export class BulletGroup extends Physics.Arcade.Group {
       visible: false,
       key: "bolt"
     });
+
+    this.isEnabled = true;
 
     this.laser = this.scene.physics.add.sprite(0, 0, "fire2").setDepth(1);
     this.laser.scaleY = 30;
@@ -48,23 +52,24 @@ export class BulletGroup extends Physics.Arcade.Group {
     scene.anims.create(fire2);
   }
 
-  fireBullets(x, y, playerSprite) {
-    if (this.laserEnabled) {
-      this.fireLaser(playerSprite);
-      return;
-    }
+  fireBullets(x, y) {
+    if (!this.isEnabled) return;
+
     if (this.scene.time.now - this.lastFired > this.fireRate) {
-      for(let i = 1; i <= this.numShots; i++) {
-        const half = (this.numShots+1)/2;
-        const flip = -1*(i<=half?1:-1);
+      for (let i = 1; i <= this.numShots; i++) {
+        const half = (this.numShots + 1) / 2;
+        const flip = -1 * (i <= half ? 1 : -1);
         const bullet = this.getFirstDead(true) as Bullet;
         if (bullet) {
           bullet.setScale(this.bulletConfig.bulletScale);
           bullet.setTint(this.bulletConfig.tint);
           bullet.play("fire1");
-          bullet.fire(x, y,
-            flip*this.bulletConfig.bulletVelocity*Math.abs(half-i)/3,
-            this.bulletConfig.bulletVelocity);
+          bullet.fire(
+            x,
+            y,
+            (flip * this.bulletConfig.bulletVelocity * Math.abs(half - i)) / 3,
+            this.bulletConfig.bulletVelocity
+          );
         }
       }
       this.lastFired = this.scene.time.now;

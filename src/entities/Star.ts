@@ -44,4 +44,34 @@ export default class Star {
     if (!this.isActive) return;
     this.projectileGroup.fireProjectile(this.sprite.x, 100);
   }
+
+  destroy() {
+    this.isActive = false;
+    this.scene.tweens.add({
+      targets: this.sprite,
+      y: "-=400",
+      duration: 2000,
+      ease: "Linear",
+      onComplete:()=>{
+        this.scene.tweens.add({
+          targets: this.scene.cameras.main,
+          alpha: 0,
+          duration: 5000,
+
+          onComplete: () => {
+            this.scene.scene.start("MenuScene");
+          }
+        });
+      }
+    });
+
+    this.scene.tweens.add({
+      targets: this.sprite,
+      x: "+=10",
+      duration: 100,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut"
+    });
+  }
 }
