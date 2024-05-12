@@ -8,12 +8,9 @@ import Asteroid from "../entities/Asteroid";
 import Background from "../entities/Background";
 import { Mineral } from "../entities/Mineral";
 
+import config from "../gameConfig";
 import { BulletGroup } from "../systems/BulletSystem";
-import {
-  Pattern,
-  Projectile,
-  ProjectileGroup
-} from "../systems/ProjectileSystem";
+import { Projectile } from "../systems/ProjectileSystem";
 
 export class Game extends Scene {
   background: Background;
@@ -22,13 +19,13 @@ export class Game extends Scene {
   bgFx: FX.ColorMatrix;
   laserGroup: BulletGroup;
   starBoss: Star;
-  bossProjectileGroup: ProjectileGroup;
   healthSystem: HealthSystem;
   asteroids: Asteroid[];
   minerals: Mineral[];
   invisibleSideWalls: GameObjects.Rectangle[];
   invisibleVerticalWalls: GameObjects.Rectangle[];
   topTriggerWall: GameObjects.Rectangle;
+  spawnAsteroids = true;
 
   constructor() {
     super({
@@ -37,7 +34,7 @@ export class Game extends Scene {
   }
 
   create(): void {
-    this.background = new Background(this)
+    this.background = new Background(this);
     this.healthSystem = new HealthSystem(this);
 
     const spawnPoints = [
@@ -46,10 +43,12 @@ export class Game extends Scene {
       this.cameras.main.centerX + 500
     ];
     this.asteroids = [];
+
     this.time.addEvent({
       delay: 5000,
       loop: true,
       callback: () => {
+        if (!this.spawnAsteroids) return;
         for (const x of spawnPoints) {
           const asteroid = new Asteroid(this, { x, y: -200 });
           this.asteroids.push(asteroid);
@@ -57,7 +56,17 @@ export class Game extends Scene {
         }
       }
     });
-    this.minerals = []
+
+    this.starBoss = new Star(this);
+
+    this.time.addEvent({
+      delay: config.gameDuration * 1000,
+      callback: () => {
+        this.spawnAsteroids = false;
+        this.starBoss.playIntroSequence(this.initBoss.bind(this));
+      }
+    });
+    this.minerals = [];
 
     this.laserGroup = new BulletGroup(this);
     this.createInvisibleWalls();
@@ -67,20 +76,7 @@ export class Game extends Scene {
     }
 
     this.player = new Player(this);
-    this.starBoss = new Star(this);
-    this.bossProjectileGroup = new ProjectileGroup(this);
-    this.healthSystem.addObject(this.player.sprite, 100, () =>
-      this.player.destroy()
-    );
 
-    this.starBoss.sprite.body.setCircle(this.starBoss.sprite.width / 2);
-    this.starBoss.sprite.body.immovable = true;
-    this.starBoss.sprite.body.pushable = false;
-
-    this.starBoss.sprite.setCollideWorldBounds(true);
-    this.healthSystem.addObject(this.starBoss.sprite, 100, () =>
-      this.starBoss.sprite.destroy()
-    );
     this.healthSystem.addObject(
       this.player.sprite,
       3000,
@@ -90,39 +86,6 @@ export class Game extends Scene {
           targets: this.player.sprite,
           tint: 0xff0000,
           duration: 0.5,
-          yoyo: true
-        });
-      }
-    );
-
-    this.physics.add.collider(
-      this.player.sprite,
-      this.bossProjectileGroup,
-      (player, projectile: Projectile) => {
-        if (!projectile.collided) {
-          projectile.destroy();
-          this.healthSystem.takeDamage(this.player.sprite, 100);
-          projectile.collided = true;
-        }
-      }
-    );
-
-    this.laserGroup.addObjectToCollideWith(
-      this.starBoss.sprite,
-      (obj, bullet) => {
-        if (!this.laserGroup.laserEnabled) bullet.destroy();
-        else if (
-          this.time.now - this.laserGroup.lastFired <
-          this.laserGroup.fireRate
-        ) {
-          this.laserGroup.lastFired = this.time.now;
-          return;
-        }
-
-        this.tweens.add({
-          targets: obj,
-          tint: 0xff0000,
-          duration: 0.2,
           yoyo: true
         });
       }
@@ -263,6 +226,15 @@ export class Game extends Scene {
   }
 
   private hookAsteroidToGameFeatures(asteroid: Asteroid) {
+    this.player.collidesWith(asteroid.gameObject, "collider", 400, () => {
+      this.healthSystem.takeDamage(this.player.sprite, 300);
+      this.tweens.add({
+        targets: this.player.sprite,
+        tint: 0xff0000,
+        duration: 0.5,
+        yoyo: true
+      });
+    });
     this.healthSystem.addObject(asteroid.gameObject, 100, () =>
       this.destroyAsteroid(asteroid)
     );
@@ -327,13 +299,9 @@ export class Game extends Scene {
   }
 
   update() {
-    this.background.update()
+    this.background.update();
     this.player.update(this.keys);
-    this.bossProjectileGroup.fireProjectile(
-      this.cameras.main.centerX,
-      100,
-      Pattern.Ring
-    );
+    this.starBoss.fire();
     if (this.keys.space.isDown) {
       this.laserGroup.fireBullets(
         this.player.sprite.x,
@@ -341,5 +309,48 @@ export class Game extends Scene {
         this.player.sprite
       );
     } else this.laserGroup.stopFiringLaser();
+  }
+
+  initBoss() {
+    this.starBoss.sprite.body.setCircle(this.starBoss.sprite.width / 2);
+    this.starBoss.sprite.body.pushable = false;
+    this.healthSystem.addObject(this.starBoss.sprite, 10000, () =>
+      this.starBoss.sprite.destroy()
+    );
+    this.player.collidesWith(this.starBoss.sprite, "collider", 400, () => {
+      this.healthSystem.takeDamage(this.player.sprite, 500);
+    });
+    this.laserGroup.addObjectToCollideWith(
+      this.starBoss.sprite,
+      (obj, bullet) => {
+        if (!this.laserGroup.laserEnabled) bullet.destroy();
+        else if (
+          this.time.now - this.laserGroup.lastFired <
+          this.laserGroup.fireRate
+        ) {
+          this.laserGroup.lastFired = this.time.now;
+          return;
+        }
+
+        this.tweens.add({
+          targets: obj,
+          tint: 0xff0000,
+          duration: 0.2,
+          yoyo: true
+        });
+      }
+    );
+    this.physics.add.collider(
+      this.player.sprite,
+      this.starBoss.projectileGroup,
+      (player, projectile: Projectile) => {
+        if (!projectile.collided) {
+          projectile.destroy();
+          this.healthSystem.takeDamage(this.player.sprite, 100);
+          projectile.collided = true;
+        }
+      }
+    );
+    this.starBoss.isActive = true;
   }
 }
