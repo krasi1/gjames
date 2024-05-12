@@ -1,5 +1,5 @@
 const config = {
-  gameDuration: 10,
+  gameDuration: 90,
   background: {
     scrollVelocity: 0.2
   },
