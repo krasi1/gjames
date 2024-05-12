@@ -137,7 +137,8 @@ const config = {
       color: 0x1fff5e
     },
     damageUp: {
-      mult: 2,
+      mult: 1.4,
+      bulletSize: 0.4,
       duration: 10,
       color: 0xc73a45
     },

@@ -50,9 +50,11 @@ export class Mineral {
   damageUp(laserGroup: BulletGroup) {
     console.log("Triggered Damage Up");
     const mult = config.powerUp.damageUp.mult;
+    const bulletSize = config.powerUp.damageUp.bulletSize;
     const dur = config.powerUp.damageUp.duration;
-    laserGroup.damageMult = mult;
-    after(dur, () => (laserGroup.damageMult = 1));
+    laserGroup.damageMult *= mult;
+    laserGroup.bulletSizeMult += bulletSize;
+    after(dur, () => {(laserGroup.damageMult /= mult); laserGroup.bulletSizeMult-=bulletSize});
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

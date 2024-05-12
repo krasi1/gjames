@@ -8,6 +8,7 @@ export class BulletGroup extends Physics.Arcade.Group {
   firing = false;
   laserEnabled = false;
   bulletConfig = config.player.weapons[1];
+  bulletSizeMult = 1;
   currentLevel = 1;
   maxLevel = 4;
   damageMult = 1;
@@ -59,7 +60,7 @@ export class BulletGroup extends Physics.Arcade.Group {
         const flip = -1*(i<=half?1:-1);
         const bullet = this.getFirstDead(true) as Bullet;
         if (bullet) {
-          bullet.setScale(this.bulletConfig.bulletScale);
+          bullet.setScale(this.bulletConfig.bulletScale*this.bulletSizeMult);
           bullet.setTint(this.bulletConfig.tint);
           bullet.play("fire1");
           bullet.fire(x, y,
