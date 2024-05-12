@@ -225,9 +225,21 @@ export class Game extends Scene {
   }
 
   private hookAsteroidToGameFeatures(asteroid: Asteroid) {
+    const destroyAsteroidCb = (asteroid: Asteroid["gameObject"]) => {
+      console.log("destroyed asteroid after leaving the screen");
+      asteroid.destroy();
+      this.asteroids = this.asteroids.filter((a) => a.gameObject !== asteroid);
+      this.healthSystem.trackedObjects.delete(asteroid);
+    };
+
+    let playerRedTintTween: Phaser.Tweens.Tween = null;
     this.player.collidesWith(asteroid.gameObject, "collider", 400, () => {
       this.healthSystem.takeDamage(this.player.sprite, 300);
-      this.tweens.add({
+      // destroy asteroid with no reward after player collision
+      destroyAsteroidCb(asteroid.gameObject);
+      playerRedTintTween?.seek(0).stop();
+      this.player.sprite.clearTint();
+      playerRedTintTween = this.tweens.add({
         targets: this.player.sprite,
         tint: 0xff0000,
         duration: 0.5,
@@ -237,6 +249,8 @@ export class Game extends Scene {
     this.healthSystem.addObject(asteroid.gameObject, 100, () =>
       this.destroyAsteroid(asteroid)
     );
+
+    let alphaTween: Phaser.Tweens.Tween = null;
     // @ts-expect-error deez nuts
     this.laserGroup.addObjectToCollideWith(asteroid.gameObject, (_, bullet) => {
       if (!this.laserGroup.laserEnabled) bullet.destroy();
@@ -247,7 +261,9 @@ export class Game extends Scene {
         return;
       this.healthSystem.takeDamage(asteroid.gameObject, 10);
       // tint the asteroid red
-      this.tweens.add({
+      alphaTween?.seek(0).stop();
+      asteroid.gameObject.alpha = 1;
+      alphaTween = this.tweens.add({
         targets: asteroid.gameObject,
         alpha: 0.3,
         duration: 0.2,
@@ -262,12 +278,7 @@ export class Game extends Scene {
       asteroid.body.setVelocityX(-1 * asteroid.body.velocity.x);
     });
 
-    const destroyAsteroidCb = (asteroid: Asteroid["gameObject"]) => {
-      console.log("destroyed asteroid after leaving the screen");
-      asteroid.destroy();
-      this.asteroids = this.asteroids.filter((a) => a.gameObject !== asteroid);
-      this.healthSystem.trackedObjects.delete(asteroid);
-    };
+   
 
     const [topWall, bottomWall] = this.invisibleVerticalWalls;
 
@@ -319,6 +330,7 @@ export class Game extends Scene {
     this.player.collidesWith(this.starBoss.sprite, "collider", 400, () => {
       this.healthSystem.takeDamage(this.player.sprite, 500);
     });
+    let bossDamageTween: Phaser.Tweens.Tween = null;
     this.laserGroup.addObjectToCollideWith(
       this.starBoss.sprite,
       (obj, bullet) => {
@@ -330,8 +342,9 @@ export class Game extends Scene {
           this.laserGroup.lastFired = this.time.now;
           return;
         }
-
-        this.tweens.add({
+        bossDamageTween?.seek(0).stop();
+        obj.clearTint();
+        bossDamageTween = this.tweens.add({
           targets: obj,
           tint: 0xff0000,
           duration: 0.2,
