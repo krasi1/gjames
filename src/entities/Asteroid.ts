@@ -3,8 +3,8 @@ import { Math as PhaserMath, Scene } from "phaser";
 import generatePolygon from "../math/generatePolygon";
 import hasAdjSide from "../math/hasAdjSide";
 
-import { Triangle } from "../math/triangleTypes";
 import * as _ from "lodash";
+import { Triangle } from "../math/triangleTypes";
 
 export default class Asteroid {
   points: [number, number][];

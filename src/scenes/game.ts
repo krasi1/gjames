@@ -2,6 +2,7 @@ import { FX, GameObjects, Scene, Types } from "phaser";
 import Player from "../entities/Player";
 import Star from "../entities/Star";
 import centroid from "../math/centroid";
+import HealthBar from "../systems/HealthBar";
 import HealthSystem from "../systems/HealthSystem";
 
 import Asteroid from "../entities/Asteroid";
@@ -26,6 +27,7 @@ export class Game extends Scene {
   invisibleVerticalWalls: GameObjects.Rectangle[];
   topTriggerWall: GameObjects.Rectangle;
   spawnAsteroids: boolean;
+  healthBar: HealthBar;
 
   constructor() {
     super({
@@ -44,6 +46,13 @@ export class Game extends Scene {
       this.cameras.main.centerX + 500
     ];
     this.asteroids = [];
+
+    this.healthBar = new HealthBar(
+      this,
+      400,
+      30,
+      config.player.health
+    );
 
     this.time.addEvent({
       delay: 5000,
@@ -93,7 +102,8 @@ export class Game extends Scene {
           }
         });
       },
-      () => {
+      (damage: number) => {
+        this.healthBar.shrink(damage);
         this.tweens.add({
           targets: this.player.sprite,
           tint: 0xff0000,
@@ -238,7 +248,6 @@ export class Game extends Scene {
 
   private hookAsteroidToGameFeatures(asteroid: Asteroid) {
     const destroyAsteroidCb = (asteroid: Asteroid["gameObject"]) => {
-      console.log("destroyed asteroid after leaving the screen");
       asteroid.destroy();
       this.asteroids = this.asteroids.filter((a) => a.gameObject !== asteroid);
       this.healthSystem.trackedObjects.delete(asteroid);
@@ -247,6 +256,7 @@ export class Game extends Scene {
     let playerRedTintTween: Phaser.Tweens.Tween = null;
     this.player.collidesWith(asteroid.gameObject, "collider", 400, () => {
       this.healthSystem.takeDamage(this.player.sprite, 30);
+
       // destroy asteroid with no reward after player collision
       destroyAsteroidCb(asteroid.gameObject);
       playerRedTintTween?.seek(0).stop();
@@ -285,7 +295,6 @@ export class Game extends Scene {
 
     const wallColliders = this.invisibleSideWalls;
     this.physics.add.overlap(asteroid.gameObject, wallColliders, (asteroid) => {
-      console.log("collided with wall");
       // @ts-expect-error deez nuts
       asteroid.body.setVelocityX(-1 * asteroid.body.velocity.x);
     });
@@ -298,7 +307,6 @@ export class Game extends Scene {
       asteroid.gameObject,
       this.topTriggerWall,
       () => {
-        console.log("collided with top trigger wall");
         this.physics.add.overlap(
           asteroid.gameObject,
           topWall,

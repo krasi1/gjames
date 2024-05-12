@@ -80,7 +80,6 @@ export class BulletGroup extends Physics.Arcade.Group {
   fireLaser(playerSprite: GameObjects.Sprite) {
     this.laser.x = playerSprite.x;
     this.laser.y = playerSprite.y - 600;
-    console.log(this.laser);
     if (!this.firing) {
       this.laser.visible = true;
       this.laser.play("fire2");

@@ -40,7 +40,6 @@ export class Mineral {
   }
 
   fireRateUp(laserGroup: BulletGroup) {
-    console.log("Triggered Fire Rate Up");
     const mult = config.powerUp.fireRateUp.mult;
     const dur = config.powerUp.fireRateUp.duration;
     laserGroup.fireRateMult = mult;
@@ -48,7 +47,6 @@ export class Mineral {
   }
 
   damageUp(laserGroup: BulletGroup) {
-    console.log("Triggered Damage Up");
     const mult = config.powerUp.damageUp.mult;
     const bulletSize = config.powerUp.damageUp.bulletSize;
     const dur = config.powerUp.damageUp.duration;
@@ -57,13 +55,10 @@ export class Mineral {
     after(dur, () => {(laserGroup.damageMult /= mult); laserGroup.bulletSizeMult-=bulletSize});
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   splitShot(laserGroup: BulletGroup) {
-    console.log("Triggered Split Shot");
     const mult = config.powerUp.splitShot.mult;
     const dur = config.powerUp.splitShot.duration;
     laserGroup.numShots += mult;
-    console.log("num shots: %d", laserGroup.numShots);
     after(dur, ()=> (laserGroup.numShots-= mult));
   }
 
