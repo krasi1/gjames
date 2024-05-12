@@ -115,7 +115,8 @@ const config = {
     }
   },
   mineral: {
-    spriteScale: 0.1
+    spriteScale: 0.1,
+    spawnChance: 0.2
   },
   powerUp: {
     fireRateUp: {

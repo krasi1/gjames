@@ -101,18 +101,19 @@ export class Game extends Scene {
       x: oldAsteroid.gameObject.x,
       y: oldAsteroid.gameObject.y
     };
-
-    const mineral = new Mineral(
-      this,
-      oldPoint.x,
-      oldPoint.y,
-      Phaser.Math.Between(2, 2)
-    );
-    mineral?.sprite.body.setCircle(mineral?.sprite.width / 2);
-    this.physics.add.collider(this.player.sprite, mineral?.sprite, () => {
-      mineral?.destroyMineral(this.laserGroup);
-    });
-    this.minerals.push(mineral);
+    if(Math.random()<config.mineral.spawnChance) {
+      const mineral = new Mineral(
+        this,
+        oldPoint.x,
+        oldPoint.y,
+        Phaser.Math.Between(0, 3)
+      );
+      mineral?.sprite.body.setCircle(mineral?.sprite.width / 2);
+      this.physics.add.collider(this.player.sprite, mineral?.sprite, () => {
+        mineral?.destroyMineral(this.laserGroup);
+      });
+      this.minerals.push(mineral);
+    }
 
     const newAsteroids = oldAsteroid.destroyAsteroid();
     this.asteroids = this.asteroids.filter(
