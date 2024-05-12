@@ -1,12 +1,13 @@
 const config = {
-  gameDuration: 30,
+  gameDuration: 120,
   background: {
     scrollVelocity: 0.2
   },
 
   player: {
-    velocity: 400,
+    velocity: 450,
     baseDamage: 10,
+    health: 300,
 
     laserFireRate: 2,
 
@@ -60,6 +61,16 @@ const config = {
         repeat: -1
       }
     },
+    destroy: {
+      frames: {
+        start: 0,
+        end: 17
+      },
+      frameConfig: {
+        key: "destroy",
+        frameRate: 20
+      }
+    },
     fire1: {
       frames: {
         start: 0,
@@ -85,33 +96,34 @@ const config = {
   },
 
   boss: {
-    health: 20,
-    fireRate: 1
+    health: 5000,
+    fireRate: 1,
+    velocity: 150
   },
   bossPatterns: {
     patternTwoSplit: {
-      fireRate: 1.3,
+      fireRate: 2.5,
       velocityX: 300,
       velocityY: 600,
       projectileScale: 0.1
     },
     patternBigStraight: {
-      fireRate: 1,
+      fireRate: 2,
       velocityX: 0,
       velocityY: 700,
       projectileScale: 0.2
     },
     patternRing: {
-      fireRate: 0.5,
+      fireRate: 1.5,
       velocityX: 300,
       velocityY: 200,
       projectileScale: 0.1
     },
     patternLine: {
-      fireRate: 0.3,
+      fireRate: 1,
       velocityX: 0,
-      velocityY: 200,
-      projectileScale: 0.2
+      velocityY: 120,
+      projectileScale: 0.15
     }
   },
   mineral: {

@@ -5,6 +5,7 @@ import { after } from "../utils";
 export default class Player {
   sprite: Physics.Arcade.Sprite;
   engineAnim: GameObjects.Sprite;
+  destroyAnim: GameObjects.Sprite;
   destroyed = false;
   isColliding = false;
 
@@ -25,13 +26,22 @@ export default class Player {
       ...config.playerAnims.engine.frameConfig
     };
 
+    const destroyConf = {
+      frames: scene.anims.generateFrameNumbers("destroy", {
+        ...config.playerAnims.destroy.frames
+      }),
+      ...config.playerAnims.destroy.frameConfig
+    };
+
     scene.anims.create(engineLoop);
+    scene.anims.create(destroyConf);
 
     this.engineAnim = scene.add.sprite(
       this.sprite.x,
       this.sprite.y + 5,
       "engine"
     );
+    this.destroyAnim = scene.add.sprite(0, 0, "desroy").setVisible(false);
     this.engineAnim.play("loop");
   }
 
@@ -63,7 +73,12 @@ export default class Player {
     }
   }
 
-  collidesWith(obj: GameObjects.Sprite | GameObjects.Container, collisionType:"collider"| "overlap", pushBackForce: number, cb: () => void) {
+  collidesWith(
+    obj: GameObjects.Sprite | GameObjects.Container,
+    collisionType: "collider" | "overlap",
+    pushBackForce: number,
+    cb: () => void
+  ) {
     this.scene.physics.add[collisionType](obj, this.sprite, () => {
       const directionX = this.sprite.x - obj.x;
       const directionY = this.sprite.y - obj.y;
@@ -89,6 +104,11 @@ export default class Player {
 
   destroy() {
     this.destroyed = true;
+    this.destroyAnim.visible = true;
+    this.sprite.visible = false;
+    this.engineAnim.visible = false;
+    this.destroyAnim.setPosition(this.sprite.x, this.sprite.y);
+    this.destroyAnim.play("destroy");
     // this.sprite.destroy();
     // this.engineAnim.destroy();
   }

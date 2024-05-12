@@ -1,4 +1,4 @@
-import { Physics, Scene } from "phaser";
+import { Math as PhaserMath, Physics, Scene } from "phaser";
 import config from "../gameConfig";
 
 export enum Pattern {
@@ -19,6 +19,7 @@ export class ProjectileGroup extends Physics.Arcade.Group {
   // 2 - "ring" shot (more like volley)
   // 3 - multiple projectiles at once in a line
   attackPatterns : { (x: number, y: number): void; }[] = [];
+  currentPattern: number = PhaserMath.Between(Pattern.BigStraight, Pattern.Line);
 
   constructor(scene: Scene) {
     super(scene.physics.world, scene);
@@ -39,8 +40,8 @@ export class ProjectileGroup extends Physics.Arcade.Group {
 
   }
 
-fireProjectile(x: number, y: number, pattern: number) {
-    this.attackPatterns[pattern](x, y);
+fireProjectile(x: number, y: number) {
+    this.attackPatterns[this.currentPattern](x, y);
 }
 
 patternTwoSplit = (x: number, y: number) => {
@@ -57,6 +58,7 @@ patternTwoSplit = (x: number, y: number) => {
             }
         }
         this.lastFired = this.scene.time.now;
+        this.currentPattern = PhaserMath.Between(Pattern.BigStraight, Pattern.Line);
     }
   }
 
@@ -72,6 +74,7 @@ patternTwoSplit = (x: number, y: number) => {
         );
         this.lastFired = this.scene.time.now;
         }
+        this.currentPattern = PhaserMath.Between(Pattern.BigStraight, Pattern.Line);
     }
   }
 
@@ -90,6 +93,7 @@ patternTwoSplit = (x: number, y: number) => {
             this.lastFired = this.scene.time.now;
             }
         }
+        this.currentPattern = PhaserMath.Between(Pattern.BigStraight, Pattern.Line);
     }
   }
 
@@ -107,6 +111,7 @@ patternTwoSplit = (x: number, y: number) => {
             this.lastFired = this.scene.time.now;
             }
         }
+        this.currentPattern = PhaserMath.Between(Pattern.BigStraight, Pattern.Line);
     }
   }
 }
@@ -133,4 +138,5 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
     this.setVisible(true);
     this.setVelocity(velocityX, velocityY);
   }
+
 }

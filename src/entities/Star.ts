@@ -1,5 +1,6 @@
 import { Physics, Scene } from "phaser";
-import { Pattern, ProjectileGroup } from "../systems/ProjectileSystem";
+import config from "../gameConfig";
+import { ProjectileGroup } from "../systems/ProjectileSystem";
 //import { BulletGroup } from "../systems/BulletSystem";
 //import config from "../gameConfig";
 
@@ -7,12 +8,20 @@ export default class Star {
   sprite: Physics.Arcade.Sprite;
   projectileGroup: ProjectileGroup;
   isActive = false;
+  velocity = config.boss.velocity;
 
   constructor(protected scene: Scene) {
     this.sprite = scene.physics.add
       .sprite(scene.cameras.main.centerX, -300, "star")
       .setName("BOSS");
     this.projectileGroup = new ProjectileGroup(scene);
+    scene.time.addEvent({
+      delay: 3000,
+      loop: true,
+      callback: () => {
+        this.velocity = -this.velocity;
+      }
+    });
   }
 
   playIntroSequence(onComplete: () => void) {
@@ -27,12 +36,12 @@ export default class Star {
     });
   }
 
+  update() {
+    if (this.isActive) this.sprite.setVelocityX(this.velocity);
+  }
+
   fire() {
     if (!this.isActive) return;
-    this.projectileGroup.fireProjectile(
-      this.scene.cameras.main.centerX,
-      100,
-      Pattern.Ring
-    );
+    this.projectileGroup.fireProjectile(this.sprite.x, 100);
   }
 }

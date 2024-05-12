@@ -49,33 +49,16 @@ export default class Preload extends Scene {
       startFrame: 0,
       endFrame: 3
     });
+    this.load.spritesheet("destroy", "assets/spritesheet/destroy.png", {
+      frameWidth: 128,
+      frameHeight: 128,
+      startFrame: 0,
+      endFrame: 17
+    });
     this.load.image("star", "assets/image/star.png");
     this.load.image("projectile", "assets/image/projectile.png");
     this.load.image("mineral", "assets/image/gem.png");
-    // this.load.on("fileprogress", (file) => {
-    //   const previousLoad = file.previousLoad || 0;
 
-    //   this.downloadedSize += file.bytesLoaded - previousLoad;
-    //   file.previousLoad = file.bytesLoaded;
-
-    //   this.progressBar.setProgress(this.downloadedSize / manifest.totalSize);
-    // });
-
-    // const assetList = manifest.assets;
-
-    // Object.keys(assetList).forEach((fileType: string) => {
-    //   Object.keys(assetList[fileType]).forEach((key) => {
-    //     const assetVars = assetList[fileType][key];
-    //     const url =
-    //       manifest.assetRoot + "/" + fileType + "/" + assetVars["file"];
-
-    //     if (fileType === "spritesheet") {
-    //       this.load[fileType](key, url, assetVars.frameConfig);
-    //     } else {
-    //       this.load[fileType](key, url);
-    //     }
-    //   });
-    // });
   }
 
   create(): void {
